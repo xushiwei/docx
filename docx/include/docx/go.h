@@ -1,6 +1,8 @@
 #ifndef DOCX_GO_H
 #define DOCX_GO_H
 
+#include <set>
+
 #ifndef DOCX_BASIC_H
 #include "basic.h"
 #endif
@@ -9,7 +11,38 @@
 #include "../../../tpl/include/tpl/c/Lex.h"
 #endif
 
+#define TR info("INFO: %s\n")
+#define TRN info("NAME: %s\n")
+
 namespace docx {
+
+// -------------------------------------------------------------------------
+
+class NotBuiltinType
+{
+	typedef std::set<std::string> Set;
+
+	static const Set& get() {
+		static Set g_set;
+		static const char* g_types[] = {
+			"string", "float64", "float32",
+			"int", "int8", "int16", "int32", "int64",
+			"uint", "uint8", "uint16", "uint32", "uint64",
+			"byte", "uintptr"
+		};
+		for (int i = 0; i < countof(g_types); i++) {
+			g_set.insert(g_types[i]);
+		}
+		return g_set;
+	}
+
+public:
+	bool TPL_CALL operator()(const String& val) const {
+		static const Set& g_set = get();
+		const std::string v(val.begin(), val.end());
+		return g_set.find(v) == g_set.end();
+	}
+} notBuiltType;
 
 // -------------------------------------------------------------------------
 
@@ -19,25 +52,44 @@ inline void GolangParse(Log& log, Source source)
 
 	typedef DOM<> dom;
 
-	dom::Mark tagName("name");
-	dom::NodeMark tagBase("base", true);
-		dom::Mark tagAccess("access");
-		//dom::Mark tagName("name");
+	dom::Mark tagComment("comment");
+	dom::Mark tagPara("p");
+	dom::Mark tagNewline("nl");
+
+	dom::NodeMark tagFunc("func");
+		dom::NodeMark tagRecvr("recvr");
+			//dom::Mark tagName("name");
+			//dom::NodeMark tagType("type");
+		dom::Mark tagName("name");
+		dom::NodeMark tagArgs("args", true);
+			dom::NodeMark tagArg("arg");
+				//dom::Mark tagName("name");
+				dom::NodeMark tagType("type");
+					dom::Mark tagPointer("ptr");
+					dom::Mark tagNamespace("ns");
+					//dom::Mark tagName("name");
 
 	dom::Allocator alloc;
 	dom::Document doc(alloc);
 
-	source >> cpp_skip_
+	impl::Grammar typ = *gr('*'/tagPointer) + !(gr(c_symbol()/tagNamespace) + '.') + c_symbol()/tagName;
+
+	impl::Grammar recvr = gr('(') + lstart_symbol()/tagName + typ/tagType + ')';
+
+	impl::Grammar arg = (lstart_symbol()/meet(notBuiltType)/tagName + !(typ/tagType)) | typ/tagType;
+
+	impl::MarkedRule func =
+		c_symbol()/eq("func") + cpp_skip_
 		[
-			gr(c_symbol()/eq("class")) + c_symbol()/tagName +
-			!(':' +
-				(
-					!gr(c_symbol()/eq("public")/tagAccess) +
-					c_symbol()/tagName
-				)/tagBase % ','
-			) +
-			'{' + '}' + ';'
-		]/doc;
+			!(recvr/tagRecvr) + ustart_symbol()/tagName/TR + '(' + !((arg/tagArg % ',')/tagArgs) + ')'
+		];
+
+	source >> *(
+			func/tagFunc + find_eol() |
+			cpp_comment<false>()/tagComment + strict_eol() |
+			paragraph() + eol() |
+			strict_eol()/tagNewline
+		)/doc;
 
 	json_print(alloc, log, doc);
 }

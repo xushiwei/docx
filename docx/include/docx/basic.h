@@ -37,6 +37,7 @@ inline Error NewError(int code, const char* desc)
 // -------------------------------------------------------------------------
 
 typedef NS_STDEXT::Log<NS_STDEXT::FILEStorage> Log;
+typedef NS_STDEXT::String String;
 typedef NS_STDEXT::String Source;
 
 typedef void (*FnParse)(Log& log, Source source);

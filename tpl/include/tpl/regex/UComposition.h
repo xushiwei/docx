@@ -265,9 +265,13 @@ inline Rule<NotEol> const TPL_CALL not_eol() {
 
 typedef UAnd<CSymbolFirstChar, Repeat0<CSymbolNextChar> > CSymbolU;
 typedef UAnd<XmlSymbolFirstChar, Repeat0<XmlSymbolNextChar> > XmlSymbolU;
+typedef UAnd<LowerAlpha, Repeat0<CSymbolNextChar> > LstartSymbolU; // 小写开头的symbol
+typedef UAnd<UpperAlpha, Repeat0<CSymbolNextChar> > UstartSymbolU; // 大写开头的symbol
 
 TPL_REGEX_GUARD0(CSymbolU, CSymbolG, TagAssigNone)
 TPL_REGEX_GUARD0(XmlSymbolU, XmlSymbolG, TagAssigNone)
+TPL_REGEX_GUARD0(LstartSymbolU, LstartSymbolG, TagAssigNone)
+TPL_REGEX_GUARD0(UstartSymbolU, UstartSymbolG, TagAssigNone)
 
 inline Rule<CSymbolG> TPL_CALL c_symbol() {
 	return Rule<CSymbolG>();
@@ -275,6 +279,14 @@ inline Rule<CSymbolG> TPL_CALL c_symbol() {
 
 inline Rule<XmlSymbolG> TPL_CALL xml_symbol() {
 	return Rule<XmlSymbolG>();
+}
+
+inline Rule<LstartSymbolG> TPL_CALL lstart_symbol() {
+	return Rule<LstartSymbolG>();
+}
+
+inline Rule<UstartSymbolG> TPL_CALL ustart_symbol() {
+	return Rule<UstartSymbolG>();
 }
 
 TPL_CONST(Rule<CSymbolG>, c_symbol_);
