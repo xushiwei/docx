@@ -52,6 +52,8 @@ inline void GolangParse(Log& log, Source source)
 
 	typedef DOM<> dom;
 
+	dom::NodeMark tagDecls("decls", true);
+
 	dom::Mark tagComment("comment");
 	dom::Mark tagPara("p");
 	dom::Mark tagNewline("nl");
@@ -89,10 +91,10 @@ inline void GolangParse(Log& log, Source source)
 		];
 
 	source >> *(
-			func/tagFunc + find_eol() |
-			cpp_comment<false>()/tagComment + strict_eol() |
+			func/tagFunc/tagDecls + find_eol() |
+			cpp_comment<false>()/tagComment/tagDecls + strict_eol() |
 			paragraph() + eol() |
-			strict_eol()/tagNewline
+			strict_eol()/tagNewline/tagDecls
 		)/doc;
 
 	json_print(alloc, log, doc);
