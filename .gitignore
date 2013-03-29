@@ -1,7 +1,7 @@
 Debug/
 Release/
 a.out
-test.dat
+test.*
 jspt.bat
 prj2json.exe
 bin

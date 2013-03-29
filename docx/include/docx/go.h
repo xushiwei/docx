@@ -62,12 +62,14 @@ inline void GolangParse(Log& log, Source source)
 			//dom::NodeMark tagType("type");
 		dom::Mark tagName("name");
 		dom::NodeMark tagArgs("args", true);
-			dom::NodeMark tagArg("arg");
+			dom::NodeMark tagItem("item");
 				//dom::Mark tagName("name");
 				dom::NodeMark tagType("type");
 					dom::Mark tagPointer("ptr");
 					dom::Mark tagNamespace("ns");
 					//dom::Mark tagName("name");
+		dom::NodeMark tagReturns("returns", true);
+			//dom::NodeMark tagItem
 
 	dom::Allocator alloc;
 	dom::Document doc(alloc);
@@ -78,10 +80,12 @@ inline void GolangParse(Log& log, Source source)
 
 	impl::Grammar arg = (lstart_symbol()/meet(notBuiltType)/tagName + !(typ/tagType)) | typ/tagType;
 
+	impl::Grammar ret = ('(' + (arg/tagItem % ',') + ')') | typ/tagType;
+
 	impl::MarkedRule func =
 		c_symbol()/eq("func") + cpp_skip_
 		[
-			!(recvr/tagRecvr) + ustart_symbol()/tagName/TR + '(' + !((arg/tagArg % ',')/tagArgs) + ')'
+			!(recvr/tagRecvr) + ustart_symbol()/tagName + '(' + !((arg/tagItem % ',')/tagArgs) + ')' + !(ret/tagReturns)
 		];
 
 	source >> *(
