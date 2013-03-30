@@ -5,7 +5,7 @@ using namespace docx;
 int main(int argc, const char** argv)
 {
 	if (argc < 2) {
-		printf("Usage: gopp <goFile>\n");
+		printf("Usage: go2json <goFile>\n");
 		return 1;
 	}
 
