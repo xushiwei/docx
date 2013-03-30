@@ -27,6 +27,45 @@ function gosettype($args) {
 	}
 }
 
+$g_builtinTypes = array(
+	"string", "float64", "float32",
+	"int", "int8", "int16", "int32", "int64",
+	"uint", "uint8", "uint16", "uint32", "uint64",
+	"byte", "uintptr"
+);
+
+foreach ($g_builtinTypes as $builtin) {
+	$builtins[$builtin] = true;
+}
+
+function gobuiltin($name) {
+	global $builtins;
+	return isset($builtins[$name]);
+}
+
+function goctor($func) {
+
+	if (!isset($func->returns)) {
+		return '';
+	}
+
+	$returns = $func->returns;
+	$n = count($returns);
+	if ($n > 0) {
+		$ret = $returns[0];
+		if (isset($ret->type->typeref)) {
+			$typeref = $ret->type->typeref;
+			if (!isset($typeref->ns)) {
+				$name = $typeref->name;
+				if (!gobuiltin($name)) {
+					return $name;
+				}
+			}
+		}
+	}
+	return '';
+}
+
 function gojspp($doc) {
 
 	$decls = $doc->decls;
@@ -53,7 +92,20 @@ function gojspp($doc) {
 			if (isset($func->returns)) {
 				gosettype($func->returns);
 			}
-			$decls2[] = $decl;
+			if (isset($func->recvr)) {
+				$typname = $func->recvr->type->name;
+				$types[$typname]->methods[] = $func;
+			} else {
+				$typname = goctor($func);
+				if ($typname === '') {
+					$funcs[] = $func;
+				} else {
+					$types[$typname]->ctors[] = $func;
+				}
+			}
+		} else if (isset($decl->typedef)) {
+			$name = $decl->typedef->name;
+			$types[$name]->typedef = $decl->typedef;
 		} else if (isset($decl->import)) {
 			$import = $decl->import;
 			$pkg = gostring($import->pkg);
@@ -69,7 +121,13 @@ function gojspp($doc) {
 			}
 		}
 	}
-	$doc->decls = $decls2;
+	unset($doc->decls);
+	if (isset($types)) {
+		$doc->types = $types;
+	}
+	if (isset($funcs)) {
+		$doc->funcs = $funcs;
+	}
 	if (isset($imports)) {
 		$doc->imports = $imports;
 	}

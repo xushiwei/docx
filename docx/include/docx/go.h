@@ -92,7 +92,9 @@ inline void GolangParse(Log& log, Source source)
 	dom::NodeMark tagFunc("func");
 		dom::NodeMark tagRecvr("recvr");
 			//dom::Mark tagName("name");
-			//dom::NodeMark tagType("type");
+			dom::NodeMark tagRecvrType("type");
+				//dom::Mark tagPointer("ptr");
+				//dom::Mark tagName("name");
 		dom::Mark tagName("name");
 		dom::NodeMark tagArgs("args", true);
 			//dom::Mark tagName("name");
@@ -104,9 +106,10 @@ inline void GolangParse(Log& log, Source source)
 					dom::Mark tagNamespace("ns");
 					//dom::Mark tagName("name");
 				dom::NodeMark tagStruc("struct");
-					dom::NodeMark tagMembers("members", true);
+					dom::NodeMark tagMembers("vars", true);
 						//dom::Mark tagName("name");
 						//dom::NodeMark tagType("type");
+						dom::Mark tagMemberTag("tag");
 		dom::NodeMark tagReturns("returns", true);
 			//dom::Mark tagName("name");
 			//dom::NodeMark tagType("type");
@@ -114,21 +117,32 @@ inline void GolangParse(Log& log, Source source)
 	dom::Allocator alloc;
 	dom::Document doc(alloc);
 
+	impl::Rule structag = '`' + find<true>('`') | c_string();
+
 	impl::Grammar::Var typ;
 
 	impl::Grammar typref = !(gr(c_symbol()/tagNamespace) + '.') + c_symbol()/meet(notKeyword)/tagName;
 
-	impl::Grammar exptyp = *gr('*'/tagPointer) + c_symbol()/meet(notBuiltinType)/tagName;
+	impl::Grammar exptyp = !gr('*'/tagPointer) + c_symbol()/meet(notBuiltinType)/tagName;
 
-	impl::Grammar recvr = gr('(') + !gr(lstart_symbol()/tagName) + exptyp/tagType + ')';
+	impl::Grammar recvr = gr('(') + !gr(lstart_symbol()/tagName) + exptyp/tagRecvrType + ')';
 
 	impl::Grammar arg = (lstart_symbol()/meet(notBuiltinType)/tagName + !(typ/tagType)) | typ/tagType;
 
 	impl::Grammar ret = ('(' + (arg/tagReturns % ',') + ')') | typ/tagType/tagReturns;
 
-	impl::Grammar strucline = arg/tagMembers % ',';
+	impl::Grammar member =
+		(
+			c_symbol()/meet(notBuiltinType)/tagName + !(typ/tagType) |
+			typ/tagType
+		) + !gr(structag/tagMemberTag);
 
-	impl::Grammar struc = c_symbol()/eq("struct") + gr('{') + !(eol() % strucline) + '}';
+	impl::Grammar strucline = member/tagMembers % ',';
+
+	impl::Grammar struc = c_symbol()/eq("struct") + gr('{') + gr(c_pp_skip_
+		[
+			!(eol() % strucline)
+		]) + '}';
 
 	impl::Grammar import =
 		!gr(('.' | c_symbol())/tagName) + c_string()/tagPkg;
