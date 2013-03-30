@@ -64,7 +64,7 @@ public:
 		if (hr != S_OK)
 			return hr;
 
-		if (fileSize > 0xFFFFFFFF)
+		if (fileSize > 0x7FFFFFFF)
 			return E_OUTOFMEMORY;
 		
 		m_fileSize = (DWORD)fileSize;

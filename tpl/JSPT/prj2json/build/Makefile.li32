@@ -15,9 +15,9 @@ IncludeDir = -I../../../../tpl/include -I../../../../stdext/include
 # Configuration Release
 #
 ifeq ($(CFG), Release)
-	ProductDir   = ../../bin/$(Platform)
+	ProductDir   = ../../bin
 	ObjectDir    = Release
-	Product      = ../../bin/$(Platform)/prj2json
+	Product      = ../../bin/prj2json.exe
 	CFlags       = $(Defines) -fPIC -D__32BIT__ -D__INTEL__ -D__LINUX__ -DLINUX  -DNDEBUG -O2 -D_MT -fexceptions -Wall
 	CXXFlags     = $(CFlags) -fno-rtti
 	CompileC     = @gcc -c $(IncludeDir) $(CFlags) -o $@ $<

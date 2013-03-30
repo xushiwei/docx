@@ -3,7 +3,7 @@
 ../../../../stdext/include
 
 [Config Release]
-Product		Exe ../../bin/$(Platform)/prj2json
+Product		Exe ../../bin/prj2json.exe
 Options		Release; MultiThread; AnsiChar; NoRtti; Exception; WarningAll; MiniDepency
 ObjDir		Release
 LibDir		

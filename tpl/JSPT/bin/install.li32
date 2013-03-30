@@ -14,8 +14,6 @@ fi
 echo "$AppPath/prjconv \$*" > $TargetDir/prjconv
 chmod +x $TargetDir/prjconv
 
-rm -f $AppPath/prj2json.exe
-
 sed -i -e "s|PLATFORM=.*|PLATFORM=$PLATFORM|" $AppPath/prj2make
 
 for File in $AppPath/prj2* ; do
@@ -23,7 +21,6 @@ for File in $AppPath/prj2* ; do
 done
 
 cd $AppPath
-ln -s -f $PLATFORM/prj2json prj2json.exe
 cp -f jspt jspt.bat
 
 mkdir -p $TargetDir
