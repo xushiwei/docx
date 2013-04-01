@@ -4,14 +4,14 @@
 
 [Config Release]
 Product		Exe ../../cmd/cpp2json.exe
-Options		Release; MultiThread; AnsiChar; NoRtti; Exception; WarningAll; MiniDepency
+Options		Release; MultiThread; AnsiChar; NoRtti; Exception; WarningAll; MiniDepency; -Wno-parentheses
 ObjDir		Release
 LibDir		
 Libraries	
 
 [Config Debug]
 Product		Exe Debug/cpp2json
-Options		Debug; MultiThread; AnsiChar; NoRtti; Exception; WarningAll
+Options		Debug; MultiThread; AnsiChar; NoRtti; Exception; WarningAll; -Wno-parentheses
 ObjDir		Debug
 LibDir		
 Libraries	
