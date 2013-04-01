@@ -1,8 +1,8 @@
 #define TPL_USE_AUTO_ALLOC
-#include "Lex.h"
-#include "Lex.inl"
 #include <stdext/FileBuf.h>
 #include <stdext/text/Encoding.h>
+#include "Lex.h"
+#include "Lex.inl"
 
 // -------------------------------------------------------------------------
 

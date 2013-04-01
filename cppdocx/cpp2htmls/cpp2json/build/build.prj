@@ -3,7 +3,7 @@
 ../../../../stdext/include
 
 [Config Release]
-Product		Exe ../../bin/cpp2json
+Product		Exe ../../cmd/cpp2json.exe
 Options		Release; MultiThread; AnsiChar; NoRtti; Exception; WarningAll; MiniDepency
 ObjDir		Release
 LibDir		

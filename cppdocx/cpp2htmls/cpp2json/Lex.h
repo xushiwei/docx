@@ -84,7 +84,7 @@ public:
 #define int_types				( signed_keyword + int_basetypes )
 #define skipconst_				( skipws_[keyword("const")] )
 #define basetype				gr( skipws_[int_types | !class_keyword + cppsymbol] )
-#define type					gr( skipconst_ * (basetype + *gr('*') + !gr('&'))/tagType )
+#define type_					gr( skipconst_ * (basetype + *gr('*') + !gr('&'))/tagType )
 
 // -------------------------------------------------------------------------
 // template
@@ -104,16 +104,16 @@ public:
 
 #define defval_expr				( find_set<',', ')'>()/tagDefVal )
 #define defval					( '=' + skipws() + defval_expr )
-#define function_arg			( type + !gr(symbol/tagName) + !gr(defval) )
+#define function_arg			( type_ + !gr(symbol/tagName) + !gr(defval) )
 #define function_args			( '(' + !(function_arg/tagArgs % ',') + ')' )
 
 #define func_tail				( function_args + function_attr2 )
-#define func_or_var				( type + !call_type + gr((skipws_*cppsymbol)/tagName) + !func_tail + ';' )
+#define func_or_var				( type_ + !call_type + gr((skipws_*cppsymbol)/tagName) + !func_tail + ';' )
 
 // -------------------------------------------------------------------------
 // class body
 
-#define type_cast				( keyword("operator") + type + '(' + ')' + function_attr2 + ';' )
+#define type_cast				( keyword("operator") + type_ + '(' + ')' + function_attr2 + ';' )
 #define enumdef					( keyword("enum") + symbol/tagName + ';' )
 #define typedefine				( keyword("typedef") + (symbol/tagName + gr(';') | func_or_var) )
 

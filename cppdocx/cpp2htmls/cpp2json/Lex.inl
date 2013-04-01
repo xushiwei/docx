@@ -28,7 +28,7 @@ dom::Mark tagMacroArgs("args", true);
 
 impl::Allocator alloc;
 impl::MarkedGrammar rCppSymbol(alloc, cppsymbol);
-impl::MarkedGrammar rType(alloc, type);
+impl::MarkedGrammar rType(alloc, type_);
 impl::MarkedGrammar rClass(alloc, classdef);
 String className;
 String encoding;
