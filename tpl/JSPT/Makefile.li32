@@ -1,4 +1,4 @@
 all:
 	cd prj2json/build; make -f Makefile.li32 CFG=Release
-	@cd bin; ./install.li32
+	@cd cmd; ./install.li32
 
