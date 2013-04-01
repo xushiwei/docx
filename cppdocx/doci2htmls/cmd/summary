@@ -1,0 +1,64 @@
+#!/usr/bin/php
+<?php
+	$argc = $_SERVER["argc"];
+	$argv = $_SERVER["argv"];
+	$gf = array();
+
+	$appPath = dirname($argv[0]);	
+	for ($count = 1; $count < $argc; $count++)
+	{
+		$summary = $argv[$count];
+		if(!is_file($summary))
+			continue;
+		$doc = json_decode(file_get_contents($summary));
+		if (isset($doc->globals))
+			foreach ($doc->globals as $global)
+			{
+				$function = substr($global->filename, 0, strpos($global->filename, '('));
+				$namespace = $global->ns;
+				if (strstr($gf[$function], $summary) == false)
+					$gf[$function] .= $summary . ":";
+			}
+	}
+
+	require("$appPath/../../cpp2htmls/bin/inc/html/base.php");
+	$keys = array();
+	$keys = array_keys($gf);
+	foreach ($keys as $function)
+	{
+		$summaryArray = array();
+		$summaryArray = explode(":", $gf[$function]);
+
+		$file = "$namespace/$function" . ".htm";
+		$fp = fopen($file, 'w');
+
+		// insert htm header
+		$title = $namespace . '::' . $function;
+		html_header($fp, $title, $file, '');
+		$des = '<H1>' . $title . '</H1><H4>该函数的重载函数如下：</H4><TABLE height=\"1\"><TR VALIGN=\"top\">';
+		$des = $des . '<TH align="left" width="35%" height="19">Method</TH><TH align="left" width="65%" height="19">Description</TH></TR>';
+//		$des = $des . '<TD width=\"35%\" height=\"19\"><b>Method</b></TD><TD width=\"65%\" height=\"19\"><b>Description</b></TD></TR>';
+		fwrite($fp, $des);
+
+		// insert global function description
+		foreach ($summaryArray as $item)
+		{
+			if (strlen($item) > 0)
+			{
+				$doc = json_decode(file_get_contents($item));
+				foreach ($doc->globals as $gitem)
+				{
+					if ($function == substr($gitem->filename, 0, strpos($gitem->filename, '(')))
+					{
+						$fn = '<b><a href="' . $gitem->filename . '">'. basename($gitem->filename) . '</a></b>';
+						$show = '<TD width=\"35%\" height=\"19\">'.$fn.'</TD><TD width=\"65%\" height=\"19\">'.$gitem->summary.'</TD></TR>';
+						fwrite($fp, $show);
+					}
+				}
+			}
+		}
+
+		fclose($fp);
+	}
+
+?>

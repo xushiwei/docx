@@ -1,0 +1,113 @@
+{
+  "sentences": 
+  [
+    {
+      "comment": {
+        "summary": "comment\r\n "
+      }
+    },
+    {
+      "global": {
+        "type": "void ",
+        "name": "f",
+        "funcattr": ""
+      }
+    },
+    {
+      "comment": {
+        "summary": "   comment\r\n"
+      }
+    },
+    {
+      "global": {
+        "type": "void ",
+        "name": "f2",
+        "funcattr": ""
+      }
+    },
+    {
+      "comment": {
+        "summary": "comment\r\n "
+      }
+    },
+    {
+      "global": {
+        "type": "void ",
+        "name": "f3",
+        "funcattr": ""
+      }
+    },
+    {
+      "comment": {
+        "summary": "comment\r\n",
+        "args": 
+        [
+          {
+            "name": "a",
+            "body": 
+            [
+              {
+                "text": "a\r\n "
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "global": {
+        "type": "void ",
+        "name": "f4",
+        "funcattr": ""
+      }
+    },
+    {
+      "comment": {
+        "summary": "comment0\r\ncomment1\r\ncomment2\r\n"
+      }
+    },
+    {
+      "global": {
+        "type": "void ",
+        "name": "f5",
+        "funcattr": ""
+      }
+    },
+    {
+      "comment": {
+        "summary": "comment0\r\ncomment1\r\ncomment2\r\n"
+      }
+    },
+    {
+      "global": {
+        "type": "void ",
+        "name": "f6",
+        "funcattr": ""
+      }
+    },
+    {
+      "comment": {
+        "summary": "... text ...\r\n"
+      }
+    },
+    {
+      "global": {
+        "type": "void ",
+        "name": "f7",
+        "funcattr": ""
+      }
+    },
+    {
+      "comment": {
+        "summary": " ... text ...\r\n"
+      }
+    },
+    {
+      "global": {
+        "type": "void ",
+        "name": "f8",
+        "funcattr": ""
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+文档编写注意事项：
+
+0. 注释文档最先描述的内容：
+	@encoding utf8	// 保证书写帮助文档时时使用utf8编码，否则汉字部分可能会出现乱码问题。建议使用Notepad++的格式转换成“以UTF8无BOM格式编码”
+	@ns cerl		// 表示 namespace
+
+1. 类/函数 brief 部分
+		brief 所在位置为 /** 之后。
+	/** 类/函数概述
+	@*/
+		值得注意的是， brief 应该避免实现细节的描述，着重描述类/函数的功能，以及是为解决哪些问题而产生的。
+	
+2. @remark 部分
+	当一个函数较为复杂的时候，应该在此部分加入应用场景描述。	
+
+3. 构造函数和析构函数
+	在我们编写的代码中，如果出现了构造函数和析构函数，那么就需要对构造函数和析构函数添加注释。
+	如果认为生成单独的构造函数和析构函数注释文件（.htm）没有必要，那么就需要在类的 brief 部分说明构造和析构函数。
+
+4. @arg
+	@arg [in] x 表示x为输入型参数。
+	@arg [out] y 表示y为输出型参数。
+	模板参数作为类或者函数的参数。
+
+5. @return 部分
+	返回值如果含有需要描述的参数时，参数描述的格式如下：
+	@return
+		@val false
+			失败
+		@val true
+			成功
+			
+6. @see 部分
+	如果引用的 item （例如类中的一个函数）和本条 item 在同一目录（例如，两个 item 处于同一个类中），
+	那么可以省略 namespace 和 class，直接填写 @see item，当然写成 @see namespace::class::item也一样。
+	一些例子：
+	@see function
+	see 中引用的函数和 see 所属的函数处于同一个类中，那么直接填写函数名称。
+	@see global_function
+	see 中引用的全局函数和 see 所属的全局函数处于同一个 namespace 中，那么直接填写全局函数名称。
+	@see macro
+	see 中引用如果引用了其他的 macro，那么那么直接填写宏名称。
+	@see namespace::class::function
+	see 中引用的函数和 see 所属的函数处于不同的类中，那么需要填写函数的格式为 namespace::class::function
+	
+7. 关于在注释中需要应用其他的类/函数
+	和 @see 的用法类似，如果在注释中需要应用其他的类/函数，且要引用的内容和本条 item 处于同一目录，
+	那么可以写成 \<item>，否则需要按照情况加入 namespace/class ， 形如： \<namespace::class::item>
+
+8. 目前不支持的关键字包括: inline, public, virtual, explicit
+
+9. 类和函数的必须以";"结尾，注意是英文输入法的";"
+	例如：void cerl_call sleep(Fiber self);

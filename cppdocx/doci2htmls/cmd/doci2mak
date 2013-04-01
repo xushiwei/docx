@@ -1,0 +1,30 @@
+#!/usr/bin/php
+<?php
+
+if ($argc < 2)
+{
+	echo "Usage: doci2mak <doci_file> [<command>] [<make_file>]\n";
+	echo "       <command> can be cpp2htmls (default) or wiki2htmls.\n";
+	exit;
+}
+
+$appPath = dirname($argv[0]);
+
+$dociFile = $argv[1];
+$dociPath = dirname($dociFile);
+
+if ($argc > 2)
+	$command = $argv[2];
+else
+	$command = "cpp2htmls";
+
+if ($argc > 3)
+	$makeFile = $argv[3];
+else
+	$makeFile = "Makefile.doci2mak";
+
+$doci2json = "$appPath/doci2json $dociFile";
+$json2mak = "php $appPath/inc/doci/doci2mak.php $makeFile $command $dociPath";
+
+system("$doci2json | $json2mak");
+?>

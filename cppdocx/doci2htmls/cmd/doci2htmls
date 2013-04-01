@@ -1,0 +1,16 @@
+#!/usr/bin/php
+<?php
+	if ($argc < 2)
+	{
+		echo "Usage: doci2htmls <doci_file> [<command>]\n";
+		echo "       <command> can be cpp2htmls (default) or wiki2htmls.\n";
+		exit;
+	}
+
+	$appPath = dirname($argv[0]);
+	require("$appPath/doci2mak");
+
+	system("make -f $makeFile");
+	unlink($makeFile);
+?>
+

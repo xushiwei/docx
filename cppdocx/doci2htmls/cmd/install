@@ -1,0 +1,7 @@
+SRC=`pwd`
+mkdir -p ~/bin
+ln -s -f $SRC ~/bin/doci2htmls.dir
+cp $SRC/install.dir/* ~/bin
+cd $SRC/../../cpp2htmls/bin
+./install
+

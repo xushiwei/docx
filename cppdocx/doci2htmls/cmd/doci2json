@@ -1,0 +1,3 @@
+AppPath=`dirname $0`
+php $AppPath/inc/doci/doci2json.php $*
+
