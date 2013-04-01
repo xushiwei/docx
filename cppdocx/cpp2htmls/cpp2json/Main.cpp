@@ -33,7 +33,8 @@ int main(int argc, const char* argv[])
 			return -4;
 		}
 		
-		json_print(alloc, log, doc, sourcecp);
+		//json_print(alloc, log, doc, sourcecp);
+		json_print(alloc, log, doc);
 		return 0;
 	}
 
