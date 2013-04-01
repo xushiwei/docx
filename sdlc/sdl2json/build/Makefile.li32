@@ -1,43 +1,30 @@
-OSAbbr	 = li
-Bits	 = 32
+OSAbbr   = li
+Bits     = 32
 Platform = li32
 
 #
 # Configuration Default
 #
 ifeq ($(CFG),)
-	CFG = Debug
+	CFG = Release
 endif
 
-IncludeDir = -I../../../../tpl/include -I../../../../stdext/include
+IncludeDir = -I../../../tpl/include -I../../../stdext/include 
 
 #
 # Configuration Release
 #
 ifeq ($(CFG), Release)
-	ProductDir   = ../../bin/$(Platform)
+	ProductDir   = ../../bin
 	ObjectDir    = Release
-	Product      = ../../bin/$(Platform)/sdl2json
-	CFlags       = $(Defines) -fPIC -D__32BIT__ -D__INTEL__ -D__LINUX__ -DLINUX  -DNDEBUG -O2 -D_MT -fexceptions -Wall
-	CXXFlags     = $(CFlags) -fno-rtti
+	MocFile      = $(ObjectDir)/temp.moc.cpp
+	Product      = ../../bin/sdl2json.exe
+	CFlags       = $(Defines) -fPIC -D__INTEL__ -D__32BIT__ -D__LINUX__ -DLINUX -DNDEBUG -O2 -D_MT -fexceptions 
+	CXXFlags     = $(CFlags) -fno-rtti -Wall
+	CXX          = g++ -c $(IncludeDir) $(CXXFlags) -o $@
 	CompileC     = @gcc -c $(IncludeDir) $(CFlags) -o $@ $<
-	CompileCXX   = @g++ -c $(IncludeDir) $(CXXFlags) -o $@ $<
-	Link         = @g++ $(LibDir) -o $(Product)
-	CheckLink    = @ldd -u -r $(Product); echo
-	LD_LIBRARY_PATH += :$(ProductDir)
-endif
-
-#
-# Configuration Debug
-#
-ifeq ($(CFG), Debug)
-	ProductDir   = Debug
-	ObjectDir    = Debug
-	Product      = Debug/sdl2json
-	CFlags       = $(Defines) -fPIC -D__32BIT__ -D__INTEL__ -D__LINUX__ -DLINUX  -D_DEBUG -g3 -D_MT -fexceptions -Wall
-	CXXFlags     = $(CFlags) -fno-rtti
-	CompileC     = @gcc -c $(IncludeDir) $(CFlags) -o $@ $<
-	CompileCXX   = @g++ -c $(IncludeDir) $(CXXFlags) -o $@ $<
+	CompileCXX   = @$(CXX) $<
+	CompileMoc   = @moc $< -o $(MocFile) && $(CXX) $(MocFile) && rm -f $(MocFile)
 	Link         = @g++ $(LibDir) -o $(Product)
 	CheckLink    = @ldd -u -r $(Product); echo
 	LD_LIBRARY_PATH += :$(ProductDir)
@@ -77,9 +64,11 @@ $(ObjectDir)/Main.o :	\
 	@echo "---> Compiling" $< "..."
 	$(CompileCXX)
 
-Objects = $(ObjectDir)/Main.o 
 
-$(Product) : $(Objects)
+Objects =	\
+	$(ObjectDir)/Main.o
+
+$(Product) : $(Objects) $(Libs)
 	@echo "---> Creating" $@ "..."
 	@rm -f $@
 	$(Link) $(Objects) $(Libraries)

@@ -1,9 +1,9 @@
 [Include]
-../../../../tpl/include
-../../../../stdext/include
+../../../tpl/include
+../../../stdext/include
 
 [Config Release]
-Product		Exe ../../bin/$(Platform)/sdl2json
+Product		Exe ../../bin/sdl2json.exe
 Options		Release; MultiThread; AnsiChar; NoRtti; Exception; WarningAll; MiniDepency
 ObjDir		Release
 LibDir		
