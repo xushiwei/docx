@@ -1,0 +1,656 @@
+{
+  "module": "myserver",
+  "sentences": 
+  [
+    {
+      "codedef": {
+        "name": "false",
+        "value": "0"
+      }
+    },
+    {
+      "codedef": {
+        "name": "true",
+        "value": "1"
+      }
+    },
+    {
+      "codedef": {
+        "name": "ok",
+        "value": "2"
+      }
+    },
+    {
+      "codedef": {
+        "name": "confliction",
+        "value": "0x81"
+      }
+    },
+    {
+      "codedef": {
+        "name": "notimpl",
+        "value": "0x82"
+      }
+    },
+    {
+      "codedef": {
+        "name": "replication",
+        "value": "0x101"
+      }
+    },
+    {
+      "codedef": {
+        "name": "timeout",
+        "value": "0x102"
+      }
+    },
+    {
+      "codedef": {
+        "name": "md5",
+        "value": "0x103"
+      }
+    },
+    {
+      "codedef": {
+        "name": "error",
+        "value": "0xffff"
+      }
+    },
+    {
+      "typedef": {
+        "name": "MD5",
+        "type": {
+          "named_type": {
+            "name": "Char"
+          },
+          "array": {
+            "size": "16"
+          }
+        }
+      }
+    },
+    {
+      "typedef": {
+        "name": "Name",
+        "type": {
+          "named_type": {
+            "name": "String"
+          }
+        }
+      }
+    },
+    {
+      "typedef": {
+        "name": "Option",
+        "type": {
+          "coded_type": {
+            "items": 
+            [
+              {
+                "code": "replication",
+                "vars": 
+                [
+                  {
+                    "type": {
+                      "named_type": {
+                        "name": "UInt32"
+                      }
+                    },
+                    "name": "value"
+                  }
+                ]
+              },
+              {
+                "code": "timeout",
+                "vars": 
+                [
+                  {
+                    "type": {
+                      "named_type": {
+                        "name": "UInt32"
+                      }
+                    },
+                    "name": "value"
+                  }
+                ]
+              },
+              {
+                "code": "md5",
+                "vars": 
+                [
+                  {
+                    "type": {
+                      "named_type": {
+                        "name": "MD5"
+                      }
+                    },
+                    "name": "value"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "typedef": {
+        "name": "Handle",
+        "type": {
+          "struct": {
+            "vars": 
+            [
+              {
+                "type": {
+                  "named_type": {
+                    "name": "Name"
+                  }
+                },
+                "name": "name"
+              },
+              {
+                "type": {
+                  "named_type": {
+                    "name": "Option"
+                  },
+                  "array": {
+                  }
+                },
+                "name": "options"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "typedef": {
+        "name": "Reason",
+        "type": {
+          "coded_type": {
+            "items": 
+            [
+              {
+                "code": "confliction"
+              },
+              {
+                "code": "notimpl"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "typedef": {
+        "name": "Information",
+        "type": {
+          "coded_type": {
+            "items": 
+            [
+              {
+                "code": "notimpl"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "server": {
+        "name": "Foo",
+        "sentences": 
+        [
+          {
+            "ctor": {
+              "args": 
+              [
+                {
+                  "type": {
+                    "named_type": {
+                      "name": "UInt32"
+                    }
+                  },
+                  "name": "count"
+                },
+                {
+                  "type": {
+                    "named_type": {
+                      "name": "String"
+                    }
+                  },
+                  "name": "abc"
+                }
+              ]
+            }
+          },
+          {
+            "typedef": {
+              "name": "Message",
+              "type": {
+                "coded_type": {
+                  "items": 
+                  [
+                    {
+                      "code": "put",
+                      "vars": 
+                      [
+                        {
+                          "type": {
+                            "named_type": {
+                              "name": "Handle"
+                            }
+                          },
+                          "name": "handle"
+                        },
+                        {
+                          "type": {
+                            "named_type": {
+                              "name": "String"
+                            }
+                          },
+                          "name": "key"
+                        },
+                        {
+                          "type": {
+                            "named_type": {
+                              "name": "String"
+                            }
+                          },
+                          "name": "data"
+                        }
+                      ]
+                    },
+                    {
+                      "code": "erase",
+                      "vars": 
+                      [
+                        {
+                          "type": {
+                            "named_type": {
+                              "name": "Handle"
+                            }
+                          },
+                          "name": "handle"
+                        },
+                        {
+                          "type": {
+                            "named_type": {
+                              "name": "String"
+                            }
+                          },
+                          "name": "key"
+                        }
+                      ]
+                    },
+                    {
+                      "code": "clear",
+                      "vars": 
+                      [
+                        {
+                          "type": {
+                            "named_type": {
+                              "name": "Handle"
+                            }
+                          },
+                          "name": "handle"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "function": {
+              "id": "1",
+              "name": "open",
+              "args": 
+              [
+                {
+                  "type": {
+                    "named_type": {
+                      "name": "Name"
+                    }
+                  },
+                  "name": "name"
+                },
+                {
+                  "type": {
+                    "named_type": {
+                      "name": "Option"
+                    },
+                    "array": {
+                    }
+                  },
+                  "name": "options"
+                }
+              ],
+              "type": {
+                "coded_type": {
+                  "items": 
+                  [
+                    {
+                      "code": "ok",
+                      "vars": 
+                      [
+                        {
+                          "type": {
+                            "named_type": {
+                              "name": "Handle"
+                            }
+                          },
+                          "name": "handle"
+                        }
+                      ]
+                    },
+                    {
+                      "code": "error",
+                      "vars": 
+                      [
+                        {
+                          "type": {
+                            "named_type": {
+                              "name": "Reason"
+                            }
+                          },
+                          "name": "reason"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "function": {
+              "id": "2",
+              "name": "forward",
+              "args": 
+              [
+                {
+                  "type": {
+                    "named_type": {
+                      "name": "Handle"
+                    }
+                  },
+                  "name": "handle"
+                },
+                {
+                  "type": {
+                    "named_type": {
+                      "name": "Message"
+                    }
+                  },
+                  "name": "message"
+                }
+              ],
+              "type": {
+                "coded_type": {
+                  "items": 
+                  [
+                    {
+                      "code": "ok"
+                    },
+                    {
+                      "code": "error",
+                      "vars": 
+                      [
+                        {
+                          "type": {
+                            "named_type": {
+                              "name": "Reason"
+                            }
+                          },
+                          "name": "reason"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "function": {
+              "id": "3",
+              "name": "put",
+              "args": 
+              [
+                {
+                  "type": {
+                    "named_type": {
+                      "name": "Handle"
+                    }
+                  },
+                  "name": "handle"
+                },
+                {
+                  "type": {
+                    "named_type": {
+                      "name": "String"
+                    }
+                  },
+                  "name": "key"
+                },
+                {
+                  "type": {
+                    "named_type": {
+                      "name": "String"
+                    }
+                  },
+                  "name": "data"
+                }
+              ],
+              "type": {
+                "coded_type": {
+                  "items": 
+                  [
+                    {
+                      "code": "ok"
+                    },
+                    {
+                      "code": "error",
+                      "vars": 
+                      [
+                        {
+                          "type": {
+                            "named_type": {
+                              "name": "Reason"
+                            }
+                          },
+                          "name": "reason"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "function": {
+              "id": "4",
+              "name": "erase",
+              "args": 
+              [
+                {
+                  "type": {
+                    "named_type": {
+                      "name": "Handle"
+                    }
+                  },
+                  "name": "handle"
+                },
+                {
+                  "type": {
+                    "named_type": {
+                      "name": "String"
+                    }
+                  },
+                  "name": "key"
+                }
+              ],
+              "type": {
+                "coded_type": {
+                  "items": 
+                  [
+                    {
+                      "code": "ok"
+                    },
+                    {
+                      "code": "error",
+                      "vars": 
+                      [
+                        {
+                          "type": {
+                            "named_type": {
+                              "name": "Reason"
+                            }
+                          },
+                          "name": "reason"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "function": {
+              "id": "5",
+              "name": "clear",
+              "args": 
+              [
+                {
+                  "type": {
+                    "named_type": {
+                      "name": "Handle"
+                    }
+                  },
+                  "name": "handle"
+                }
+              ],
+              "type": {
+                "coded_type": {
+                  "items": 
+                  [
+                    {
+                      "code": "ok"
+                    },
+                    {
+                      "code": "error",
+                      "vars": 
+                      [
+                        {
+                          "type": {
+                            "named_type": {
+                              "name": "Reason"
+                            }
+                          },
+                          "name": "reason"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "function": {
+              "id": "6",
+              "name": "close",
+              "args": 
+              [
+                {
+                  "type": {
+                    "named_type": {
+                      "name": "Handle"
+                    }
+                  },
+                  "name": "handle"
+                }
+              ],
+              "type": {
+                "coded_type": {
+                  "items": 
+                  [
+                    {
+                      "code": "ok"
+                    },
+                    {
+                      "code": "error",
+                      "vars": 
+                      [
+                        {
+                          "type": {
+                            "named_type": {
+                              "name": "Reason"
+                            }
+                          },
+                          "name": "reason"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "function": {
+              "id": "7",
+              "name": "info",
+              "type": {
+                "coded_type": {
+                  "items": 
+                  [
+                    {
+                      "code": "ok",
+                      "vars": 
+                      [
+                        {
+                          "type": {
+                            "named_type": {
+                              "name": "Information"
+                            }
+                          },
+                          "name": "info"
+                        }
+                      ]
+                    },
+                    {
+                      "code": "error",
+                      "vars": 
+                      [
+                        {
+                          "type": {
+                            "named_type": {
+                              "name": "Reason"
+                            }
+                          },
+                          "name": "reason"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "function": {
+              "id": "0x81",
+              "async": "async",
+              "name": "stop"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

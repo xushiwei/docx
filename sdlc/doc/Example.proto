@@ -1,0 +1,29 @@
+
+[id = 0x0a01]
+struct Simplest
+{
+	[id=1] Int32 a;
+	[id=2] String b;
+	[id=3, optional] Bool c = true;
+	[id=4] UInt16 d[];
+}
+
+[id = 0x0a02]
+struct SelectiveRecord
+{
+	[id=1] Int32 type;
+	[id=2] String path;
+	
+	case type of
+		1:	{
+				[id=101] Int32 a;
+				[id=102] String b;
+			}
+		2:	{
+				[id=201] Int32 c;
+			}
+		3:	{
+				[id=301] String array[];
+			}
+	end;
+}

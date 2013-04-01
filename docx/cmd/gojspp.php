@@ -136,6 +136,7 @@ function gojspp($doc) {
 	}
 }
 
-gojspp($doc);
-print_r($doc);
+#gojspp($doc);
+#print_r($doc);
+#echo json_encode($doc);
 

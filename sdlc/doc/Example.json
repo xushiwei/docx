@@ -1,0 +1,125 @@
+{
+  "sentences": 
+  [
+    {
+      "struct": {
+        "id": "0x0a01",
+        "name": "Simplest",
+        "members": 
+        [
+          {
+            "var": {
+              "id": "1",
+              "type": "Int32",
+              "name": "a"
+            }
+          },
+          {
+            "var": {
+              "id": "2",
+              "type": "String",
+              "name": "b"
+            }
+          },
+          {
+            "var": {
+              "id": "3",
+              "optional": "optional",
+              "type": "Bool",
+              "name": "c",
+              "defval": " true"
+            }
+          },
+          {
+            "var": {
+              "id": "4",
+              "type": "UInt16",
+              "name": "d",
+              "array": {
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "struct": {
+        "id": "0x0a02",
+        "name": "SelectiveRecord",
+        "members": 
+        [
+          {
+            "var": {
+              "id": "1",
+              "type": "Int32",
+              "name": "type"
+            }
+          },
+          {
+            "var": {
+              "id": "2",
+              "type": "String",
+              "name": "path"
+            }
+          },
+          {
+            "switch": {
+              "expr": "type",
+              "cases": 
+              [
+                {
+                  "condition": "1",
+                  "members": 
+                  [
+                    {
+                      "var": {
+                        "id": "101",
+                        "type": "Int32",
+                        "name": "a"
+                      }
+                    },
+                    {
+                      "var": {
+                        "id": "102",
+                        "type": "String",
+                        "name": "b"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "condition": "2",
+                  "members": 
+                  [
+                    {
+                      "var": {
+                        "id": "201",
+                        "type": "Int32",
+                        "name": "c"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "condition": "3",
+                  "members": 
+                  [
+                    {
+                      "var": {
+                        "id": "301",
+                        "type": "String",
+                        "name": "array",
+                        "array": {
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+
+module myserver; // module name - namespace
+
+/*
+ * code definitions
+ */
+code confliction = 0x81;
+//code ok = 0x81;
+code notimpl = 0x82;
+code replication = 0x101;
+code timeout = 0x102;
+code md5 = 0x103;
+//code impl = confliction;
+
+//
+// type definitions
+//
+type MD5 = Char[16];
+type Name = String;
+type Option = {replication, UInt32 value} | {timeout, UInt32 value} | {md5, MD5 value};
+type Option2 = {replication, UInt32 value} | {timeout, UInt32 value} | {md5, MD5 value};
+type Handle = {Name name, Option[] options};
+type Handle2 = Handle;
+//type Handle3 = a; 
+type Reason = confliction | notimpl ;
+type Information = {notimpl};
+//type Foo = Reason;
+
+server Foo
+{	
+	//type Foo = Reason;
+	Foo(UInt32 count);
+	Foo();
+	type Message =
+		{put, Handle handle, String key, String data} |
+		{erase, Handle handle, String key} |
+		{clear, Handle handle}
+		;
+	
+	[id=1] open(Name name, Option[] options) ->
+		{ok, Handle handle} | {error, Reason reason};
+
+	[id=2] forward(Handle handle, Message message) ->
+		ok | {error, Reason reason};
+
+	[id=3] put(Handle handle, String key, String data) ->
+		ok | {error, Reason reason};
+
+	[id=4] erase(Handle handle, String key) ->
+		ok | {error, Reason reason};
+
+	[id=5] clear(Handle handle) ->
+		ok | {error, Reason reason};
+
+	//[id=6] close(Handle handle) ->
+	//	ok | {error, Reason reason} | {timeout, Reason reason};
+		
+	[id=7] info() ->
+		{ok, Information info} | {error, Reason reason};
+		
+	[id=8] showReason(Reason reason) -> ok;
+
+	//[id=0x81, async] stop();
+	
+	code timeout = 0x102;
+}
+
+server Foo2
+{
+	code timeout = 0x102;
+	
+	type Message =
+		{put, Handle handle, String key, String data} |
+		{erase, Handle handle, String key} |
+		{clear, Handle handle}
+		;
+	type MyT = {ok, Handle handle, String key, String data} |
+		{error, Handle handle, String key};
+
+	[id=1] open(Name name, Option[] options) ->
+		{ok, Handle handle} | {error, Reason reason};
+
+	[id=2] forward(Handle handle, Message from) ->
+		ok | {error, Reason reason};
+
+	[id=3] put(Handle handle, String key, String rEsult) ->
+		ok | {error, Reason reason};
+
+	[id=4] erase(Handle handle, String key) ->
+		ok | {error, Reason reason};
+
+	[id=5] clear(Handle handle) ->
+		ok | {error, Reason reason};
+
+	//[id=6] close(Handle handle) ->
+	//	ok | {error, Reason reason};
+	[id=6] close(Handle handle) ->
+		ok | {error, Reason reason} | {timeout, Reason reason};
+		
+	[id=7] info() ->
+		{ok, Information info} | {error, Reason reason};
+
+	[id=0x81, async] stop();
+}
+
+server FOO3
+{
+	type MyTAgain = {ok, Handle handle, String key, String data} |
+		{error, Handle handle, String key};
+	[id=6] close(Handle handle) ->
+		ok | {error, Reason reason} | {timeout, Reason reason};
+}
