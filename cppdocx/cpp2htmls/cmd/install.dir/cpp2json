@@ -1,2 +1,2 @@
-~/bin/cpp2htmls.dir/cpp2json $*
+~/bin/cpp2htmls.dir/cpp2json.exe $*
 

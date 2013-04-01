@@ -7,5 +7,5 @@
 	}
 	$argv = $_SERVER["argv"];
 	$AppPath = dirname($argv[0]);
-	system("$AppPath/cpp2json $argv[1] | php $AppPath/gen_htmls $argv[1]");
+	system("$AppPath/cpp2json.exe $argv[1] | php $AppPath/gen_htmls $argv[1]");
 ?>
