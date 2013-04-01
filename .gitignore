@@ -4,5 +4,5 @@ bin/
 a.out
 test.*
 jspt.bat
-prj2json.exe
+*.exe
 
