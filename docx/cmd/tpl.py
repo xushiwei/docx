@@ -1,60 +1,53 @@
 # -*- coding: utf-8 -*-
-import string
 import sys
 import re
-
+_r = re.compile(r"\$([\w_'\"\[\]]+\]|\w+[a-zA-Z0-9])")
 class Tpl(object):
-	tpl = None
 	def __init__(self, tpl):
-		self.tpl = tpl
+		self.tpl = [line.strip() for line in tpl.split("\n")]
 
 	def substitute(self, *args, **kwargs):
-		if args:
-			args = args[0]
-		else:
-			args = kwargs
-			
-		py = []
-		tpl = self.tpl.split("\n")
-		scheme = 0
-		father = []
-		for tpl_line in tpl:
-			tpl_line = tpl_line.strip()
+		py, level = [], 0
+		args = args[0] if len(args)>0 else kwargs
+		for tpl_line in self.tpl:
 			if tpl_line.startswith("{") and tpl_line.endswith("}"):
 				tpl_line = tpl_line[1:-1].strip()
-				if tpl_line.strip() == "end":
-					scheme -= 1
-					continue
-				py.append("%s%s:" % ('\t'*scheme, tpl_line))
-				scheme += 1
-				if tpl_line.startswith("for"):
-					if len(father) > scheme:
-						father = father[:scheme]
-					last_s = tpl_line.rfind(' ')
-					father.append(tpl_line[last_s+1:])
-			else:
-				extend = ""
-				if scheme > 0:
-					ret = re.findall(r"\$([\w\[\]_'\"]+)", tpl_line)
-					if len(ret) > 0:
-						extend = " %% (%s)" % ", ".join(ret)
-					tpl_line = re.sub(r"\$([\w\[\]_'\"]+)", "%s", tpl_line)
-				py.append("%s_html.append('''%s'''%s)" % ("\t"*scheme, tpl_line, extend))
-		return self.sandboxes(py, args)
+				level_change = 1
+				if tpl_line == "end":
+					level_change = -1
+				elif tpl_line == "else" or tpl_line.startswith("elif"):
+					level -= 1
+				elif tpl_line.startswith("%"):
+					level_change = 0
+					
+				tpl_line = tpl_line[1:] if tpl_line.startswith("%") else "%s:" % tpl_line 
+				if level_change >= 0:
+					py.append("%s%s" % ('\t' * level, tpl_line.strip()))
+				level += level_change
+				continue
+			ret = _r.findall(tpl_line)
+			extend = "" if len(ret)<=0 else " %% (%s)" % ", ".join(ret)
+			py.append("%s_html.append('''%s'''%s)" % ('\t' * level, _r.sub("%s", tpl_line), extend))
+		return self.sandboxes('\n'.join(py), args)
 		
 	def sandboxes(self, _html_py, _args):
 		vars().update(_args)
-		_html_py = '\n'.join(_html_py)
 		_html = []
+		isset, echo = self.isset(_args), _html.append
+		tpl = self.template(_html)
+		if _args.get("debug", False):
+			print _html_py
 		exec(_html_py)
-		print _html_py
-		return string.Template("\n".join(_html)).substitute(_args)
-		
+		return "\n".join(_html)
+	
+	def isset(self, args):
+		return lambda x: x in args
+	
+	def template(self, _html):
+		def wrapper(t, **kwargs):
+			_html.append(t(kwargs))
+			return
+		return wrapper
 
 if __name__ == "__main__":
-	f = open("%s/template/test.html" % sys.path[0], "r")
-	tpl = f.read()
-	f.close()
-	tpl = Tpl(tpl)
-	html = tpl.substitute(echo="!!echo!!", c=['1', 'c', 's'], a='w', e=dict(s="ss", b="bb"))
-	print html
+	_ = lambda x: x

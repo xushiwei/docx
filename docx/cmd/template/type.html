@@ -1,0 +1,42 @@
+<script>
+var tname = '$name';
+</script>
+<h5>Package $pkg</h5>
+<h3>$name</h3>
+<blockquote>
+{if isset('doc') and 'beief' in doc}
+$doc['beief']
+{end}
+</blockquote>
+
+{if isset('struct') and 'vars' in struct}
+	<h4>Field</h4> <hr>
+	{for var in struct['vars']}
+		<li>
+		{if 'name' in var}
+			$var['name']
+			<blockquote>
+			type: $var['type']['typeref_name']
+			<div>
+			{if 'doc' in var}
+				$var['doc']
+			{end}
+			</div>
+			</blockquote>
+			{else}
+			(extends) $var['type']['typeref_name']
+		{end}
+		</li>
+	{end}
+{end}
+{if isset('struct') and 'func' in struct}
+	<h4>Methods</h4><hr>
+	{for func in struct['func'].values()}
+		<li>
+			<a href="$name_$func['name'].html">$func['name']</a>
+			{if 'doc' in func and 'beief' in func['doc']}
+			<blockquote><pre>$func['doc']['beief']</pre></blockquote>
+			{end}
+		</li>
+	{end}
+{end}

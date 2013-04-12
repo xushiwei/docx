@@ -1,0 +1,26 @@
+{if value}
+{while value and len(value) == 1}
+	{if key.find('|') > 0}
+		{%break}
+	{end}		
+	{%key += ' &raquo; ' + value.keys()[0]}
+	{%value=value.values()[0]}
+{end}
+{end}
+
+<label>
+{if key.find('|') > 0}
+	{%key, url = key.split('|')}
+	{%rkey = url[url.rfind('/')+1: -5]}
+	<a href="$url" name="content_$rkey">$key</a>
+{else}
+	<strong><img src="$domain/_image/folder.png" align="absmiddle">$key</strong>
+{end}
+</label>
+<blockquote>
+{if value}
+	{for k, v in value.iteritems()}
+		{%tpl(map, key=k, value=v, map=map, domain=domain)}
+	{end}
+{end}
+</blockquote>

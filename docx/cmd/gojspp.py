@@ -1,23 +1,36 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @arg: qiniu/docx/docx/cmd/example/goall.go
+# @arg: qiniu/docx/docx/cmd/godir github
 import os
 import json
 import sys
 import re
+import errno
 
 re_kv = re.compile(r"^(\w+):\s*([^$]*)")
 re_cmt = re.compile(r"^(\s*\*/|/\*\*+|\s*\*|//\s*)")
 
-def get_json(filepath):
-	data = os.popen("go2json %s" % filepath).read()
-	data = json.loads(data)
-	return data['decls']
+def get_json(filepaths):
+	alldata = []
+	for filepath in filepaths:
+		data = os.popen("go2json %s" % filepath).read()
+		data = json.loads(data)
+		alldata.extend(data["decls"])
+	f = open(filepath, "r")
+	package = [l[7:].strip() for l in f.read().split("\n") if l.startswith("package")][0]
+	f.close()
+	alldata.append(dict(package=package))
+	return alldata
 
 def decode_type(decl_type):
 	ptr = False
 	if "ptr" in decl_type:
 		ptr = True
+		decl_type = decl_type["type"]
+	
+	array = None
+	if "array" in decl_type and "type" in decl_type:
+		array = decl_type["array"]
 		decl_type = decl_type["type"]
 
 	for i in [i for i in decl_type]:
@@ -26,6 +39,8 @@ def decode_type(decl_type):
 	del decl_type[i]
 	if ptr:
 		decl_type["ptr"] = True
+	if array:
+		decl_type["array"] = array
 	return decl_type
 
 def deal_func_doc_line(scheme, content, decl, ds):
@@ -93,7 +108,7 @@ def deal_func_doc(decl):
 	if "args" in decl:
 		args = [i["name"] for i in decl["args"]]
 	if "returns" in decl:
-		args.extend([i["name"] for i in decl["returns"]])
+		args.extend([i["name"] for i in decl["returns"] if "name" in i])
 
 	r = make_names_match_regex(args)
 
@@ -128,7 +143,7 @@ def deal_doc(deal_line_func, docs, decl, r):
 	deal_line_func(current_scheme, current_content, decl, ds)
 	return ds
 
-def format_go2json(filepath):
+def format_go2json(filepath, json_output=False):
 	result = {}
 	comment = []
 	decls = get_json(filepath)
@@ -142,6 +157,10 @@ def format_go2json(filepath):
 
 		if key == 'nl':
 			comment = []
+			continue
+			
+		if key == "package":
+			result["pkg"] = decl
 			continue
 
 		if key not in ['typedef', 'import', 'func']:
@@ -201,19 +220,76 @@ def format_go2json(filepath):
 				struct_dict = result["typedef"][struct_name]
 				if not "struct" in struct_dict:
 					struct_dict["struct"] = dict()
-				if not "func" in struct_dict["struct"]:
-					struct_dict["struct"]["func"] = dict()
-				struct_dict["struct"]["func"][decl["name"]] = decl
+				struct = struct_dict["struct"]
+				if not "func" in struct:
+					struct["func"] = dict()
+				struct["func"][decl["name"]] = decl
 				if "name" not in struct_dict:
 					struct_dict["name"] = struct_name
 				continue
 
 		result[key][sub_key] = decl
-	return result
+	if not json_output:
+		return result
+	return json.dumps(result)
+
+def walk_pathes(filepath, filter_regex):
+	pathes = []
+	for path in os.walk(filepath):
+		if path[0].find('/.') > 0:
+			continue
+		if len(path[2]) == 0:
+			continue
+		
+		filenames = []
+		_path = path[0].replace(filepath + '/', "")
+		for filename in path[2]:
+			if not filename.endswith(".go") or filename.endswith("_test.go"):
+				continue
+			if filter_regex and not len(re.findall(filter_regex, path[0])) > 0:
+				continue
+			filenames.append(_path + "/" + filename)
+		if len(filenames) <= 0:
+			continue
+		pathes.append((_path, filenames))
+	return pathes
+
+def ensure_filepath(filepath):
+	if filepath.endswith(".go"):
+		return filepath
+	
+	if filepath.endswith("/"):
+		filepath = filepath[: -1]
+
+	if not os.path.exists(filepath):
+		sys.exit(errno.ENOENT)
+	
+	if os.path.exists("%s/src" % filepath):
+		filepath = "%s/src" % filepath
+	return filepath
+
+def do(filepath, filter_regex, json_output=False):
+	filepath = ensure_filepath(filepath)
+	if filepath.endswith(".go"):
+		return format_go2json(filepath, json_output)
+
+	pathes = walk_pathes(filepath, filter_regex)
+	
+	if len(pathes) <= 0:
+		print "files not found"
+		sys.exit(errno.ENOENT)
+
+	datas = []
+	for folder, path in pathes:
+		path = ["%s/%s" % (filepath, p) for p in path]
+		data = format_go2json(path)
+		data["pkg_path"] = folder
+		datas.append(data)
+	return datas
 
 if __name__ == "__main__":
 	if len(sys.argv) <= 1:
 		exit("miss file")
 
-	filepath = sys.argv[1]
-	print json.dumps(format_go2json(filepath))
+	filter_regex = sys.argv[2] if len(sys.argv) >= 3 else None
+	do(sys.argv[1], filter_regex)
