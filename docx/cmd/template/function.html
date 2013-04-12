@@ -1,0 +1,48 @@
+<script>
+var tname = '$name';
+</script>
+<h3>$name</h3>
+{if isset('doc')}
+<pre>
+$doc['beief']
+</pre>
+{end}
+{if isset('args')}
+	<h4>params</h4><hr>
+	{for i in args}
+		<li>$i['name']</li>
+		<blockquote>
+			type: $i["type"]["typeref_name"]
+			{if 'doc' in i}
+			<div>$i["doc"]</div>
+			{end}
+		</blockquote>
+	{end}
+{end}
+{if isset('returns')}
+	<h4>returns</h4><hr>
+	{for i in returns}
+		<li>
+		{if 'name' in i}
+		$i['name']
+		{end}
+		</li>
+		<blockquote>
+			type: $i["type"]["typeref_name"]
+			{if 'doc' in i}
+			desc: $i["doc"]
+			{end}
+		</blockquote>
+	{end}
+{end}
+{if isset('doc')}
+{for i in doc}
+	{if i == 'beief'}
+		{%continue}
+	{end}
+	<h4>$i</h4><hr>
+	<blockquote>
+	{%echo("".join(doc[i]))}
+	</blockquote>
+{end}
+{end}
