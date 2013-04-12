@@ -1,0 +1,95 @@
+body, html {
+	margin: 0 0;
+}
+
+.content_wrap {
+	height: 100%;
+	overflow-y: auto;
+	overflow-x: hidden;
+	font-family: "Georgia";
+	float: left;
+	background: #e2e6ec;
+	border-right: 1px solid #b8b8b8;
+}
+.content_header {
+	width: 200px;
+	position:fixed;
+	color:#707e8c;
+	font-weight: 400;
+	padding-left: 10px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+}
+.content {
+	width:240px;
+	padding: 10px;
+}
+.content label {
+	color:#707e8c;
+	font-weight: 550pt;
+}	
+.content blockquote {
+	margin-left: 20px;
+	margin-right: 0px;
+	margin-top:0px;
+	margin-bottom:0px;
+	padding-top:8px;
+	padding-bottom:8px;
+}
+.content a {
+	color: #000;
+	font-weight: 400;
+	text-decoration: none;
+}
+.content a:hover {
+	color: #398ad4;
+	text-decoration: underline;
+}
+
+.detail {
+	background: #f9f9f5;
+	float: left;
+	min-width: 300px;
+	width: 640px;
+	max-width:640px;
+	height:100%;
+	overflow-y:auto;
+	padding-left: 20px;
+	padding-right: 20px;
+	border-right: 1px solid #b8b8b8;
+	font-family: "Georgia" "monaco" "Courier New";
+	color: #605833;
+}
+.detail hr {
+	color: transparent;
+	background: transparent;
+	height: 1px;
+	border: 1px solid #dfd5a5;
+	border-right: none;
+	border-left: none;
+	padding: 0px;
+	margin-top: -10px;
+}
+.detail a {
+	color: #c5bc94;
+}
+.detail a:hover {
+	color: #605833;
+}
+.preview {
+	background: url("http://www.qiniutek.com/images/logo-2.png") no-repeat center;
+	float: right;
+	height: 100%;
+	width: 400px;
+	vertical-align: middle;
+}
+.wrap{overflow:hidden;height: 100%;}
+.preview img {
+}
+.var_type {
+	color: #675833;
+	font-weight: 600;
+}
+.folder {
+	cursor: pointer;
+}

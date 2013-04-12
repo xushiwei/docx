@@ -1,18 +1,25 @@
 <script>
 var tname = '$name';
 </script>
-<h3>$name</h3>
+<h3>
+{if isset("struct")}
+<a href="$struct['name'].html">$struct['name']</a> .
+{end}
+$name
+</h3>
 {if isset('doc')}
-<pre>
 $doc['beief']
-</pre>
 {end}
 {if isset('args')}
 	<h4>params</h4><hr>
 	{for i in args}
-		<li>$i['name']</li>
+		<li>$i['name'] <label class="var_type">
+		{if 'array' in i["type"]}
+			$i["type"]["array"]
+		{end}
+		$i['type']['typeref_name']
+		</label></li>
 		<blockquote>
-			type: $i["type"]["typeref_name"]
 			{if 'doc' in i}
 			<div>$i["doc"]</div>
 			{end}
@@ -20,19 +27,38 @@ $doc['beief']
 	{end}
 {end}
 {if isset('returns')}
-	<h4>returns</h4><hr>
+	{if len(returns) == 1}
+		<hr>
+		<label class="var_type">
+		returns
+		</label>
+		{%i = returns[0]}
+		{if 'array' in i["type"]}
+			$i["type"]["array"]
+		{end}
+			$i["type"]["typeref_name"]
+
+	{else}
+	<h4>returns</h4>
+	<hr>
 	{for i in returns}
 		<li>
 		{if 'name' in i}
 		$i['name']
 		{end}
+		<label class="var_type">
+		{if 'array' in i["type"]}
+			$i["type"]["array"]
+		{end}
+			$i["type"]["typeref_name"]
+		</label>
 		</li>
 		<blockquote>
-			type: $i["type"]["typeref_name"]
 			{if 'doc' in i}
 			desc: $i["doc"]
 			{end}
 		</blockquote>
+	{end}
 	{end}
 {end}
 {if isset('doc')}

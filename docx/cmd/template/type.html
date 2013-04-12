@@ -14,9 +14,13 @@ $doc['beief']
 	{for var in struct['vars']}
 		<li>
 		{if 'name' in var}
-			$var['name']
+			$var['name'] <label class="var_type">
+				{if 'array' in var["type"]}
+					$var["type"]["array"]
+				{end}
+				$var["type"]["typeref_name"]
+			</label>
 			<blockquote>
-			type: $var['type']['typeref_name']
 			<div>
 			{if 'doc' in var}
 				$var['doc']
@@ -35,7 +39,7 @@ $doc['beief']
 		<li>
 			<a href="$name_$func['name'].html">$func['name']</a>
 			{if 'doc' in func and 'beief' in func['doc']}
-			<blockquote><pre>$func['doc']['beief']</pre></blockquote>
+			<blockquote>$func['doc']['beief']</blockquote>
 			{end}
 		</li>
 	{end}

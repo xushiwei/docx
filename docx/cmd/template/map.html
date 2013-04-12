@@ -1,20 +1,25 @@
-{if value}
-{while value and len(value) == 1}
-	{if key.find('|') > 0}
-		{%break}
-	{end}		
-	{%key += ' &raquo; ' + value.keys()[0]}
-	{%value=value.values()[0]}
-{end}
+{if value is not None}
+	{while value is not None and len(value) == 1 and not key.find('|') >= 0}
+		{%key += ' &raquo; ' + value.keys()[0]}
+		{%value=value.values()[0]}
+		{if value is not None and len(value) == 1 and value.keys()[0].find('|') >= 0}
+			{%break}
+		{end}
+	{end}
 {end}
 
+{if value is None or len(value) > 0}
 <label>
 {if key.find('|') > 0}
+	{if value is not None}
+	<a href="javascript:;" name="folder">-</a>
+	{end}
+
 	{%key, url = key.split('|')}
 	{%rkey = url[url.rfind('/')+1: -5]}
 	<a href="$url" name="content_$rkey">$key</a>
 {else}
-	<strong><img src="$domain/_image/folder.png" align="absmiddle">$key</strong>
+	<strong class="folder" name="folder"><img src="$domain/image/folder.png" align="absmiddle">$key</strong>
 {end}
 </label>
 <blockquote>
@@ -24,3 +29,5 @@
 	{end}
 {end}
 </blockquote>
+<div style="clear: both"></div>
+{end}

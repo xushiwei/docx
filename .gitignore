@@ -8,5 +8,4 @@ jspt.bat
 *.htm
 *.summary
 
-
-docx/cmd/.DS_Store
+.DS_Store

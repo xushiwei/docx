@@ -8,12 +8,15 @@ import sys
 import tpl
 import re
 import os
+import shutil
 
-domain = "http://chzyer.github.io/api/"
-domain = "file:///Volumes/CheneyHome/qiniu/docx/docx/cmd/out/"
+domain = "/api/"
+# domain = "file:///Volumes/CheneyHome/qiniu/docx/docx/cmd/out/"
+outdir = "%s/out" % sys.path[0]
+tpldir = "%s/template" % sys.path[0]
 
 def get_template(name):
-	f = open("%s/template/%s.html" % (sys.path[0], name))
+	f = open("%s/%s.html" % (tpldir, name))
 	template = tpl.Tpl(f.read()).substitute
 	f.close()
 	return template
@@ -21,7 +24,7 @@ def get_template(name):
 def save(path, data):
 	if path.startswith("/"):
 		path = paht[1:]
-	path = "%s/out/%s" % (sys.path[0], path)
+	path = "%s/%s" % (outdir, path)
 	dirpath = path[:path.rfind("/")]
 	if not os.path.exists(dirpath):
 		os.makedirs(dirpath)
@@ -31,7 +34,7 @@ def save(path, data):
 
 def save_to_base(path, content, data):
 	global template
-	body = template.body(content=content, detail=data)
+	body = template.body(content=content, detail=data, domain=domain)
 	save(path, body)
 
 class cls(object):
@@ -47,6 +50,12 @@ template = cls(
 )
 
 def do(filepath, filter_regex):
+	if os.path.exists(outdir):
+		shutil.rmtree(outdir)
+	rdir, dirs, _ = os.walk(tpldir).next()
+	dirs = [('%s/%s' % (rdir, d), "%s/%s" % (outdir, d)) for d in dirs]
+	for src, dst in dirs:
+		shutil.copytree(src, dst)
 	datas = gojspp.do(filepath, filter_regex)
 	content = make_content(datas)
 	make(datas, content)
@@ -56,22 +65,36 @@ def make(datas, content):
 		dirpath = data["pkg_path"]
 		if "func" in data:
 			for func in data["func"].values():
+				if not 'doc' in func:
+					continue
 				filename = "%s.html" % (func["name"])
+				func["domain"] = domain
 				html = template.func(func)
 				save_to_base(dirpath + "/" + filename, content, html)
 
 		if "typedef" in data:
 			for typedef in data["typedef"].values():
+				if not 'doc' in typedef:
+					if "struct" in typedef and "func" in typedef["struct"]:
+						if len([i for i in typedef["struct"]["func"].values() if 'doc' in i]) <= 0:
+							continue
+					else:
+						continue
 				filename = "%s.html" % typedef["name"]
+				
 				typedef['pkg'] = data['pkg']
+				typedef["domain"] = domain
 				html = template.type(typedef)
 				save_to_base(dirpath + "/" + filename, content, html)
 
 				if "struct" in typedef and "func" in typedef["struct"]:
 					for func in typedef["struct"]["func"].values():
+						if not 'doc' in func:
+							continue
 						filename = "%s_%s.html" % (typedef["name"], func["name"])
 						func["pkg"] = data["pkg"]
-						func["name"] = "%s.%s" % (typedef["name"], func["name"])
+						func["domain"] = domain
+						func["struct"] = typedef
 						html = template.func(func)
 						save_to_base(dirpath + "/" + filename, content, html)
 
@@ -84,15 +107,25 @@ def make_content(datas):
 		
 		if "func" in data:
 			for func in data["func"].values():
+				if not 'doc' in func:
+					continue
 				lib['%s|%s%s/%s.html' % (func["name"], domain, path, func["name"])] = None
 
 		if "typedef" in data:
 			for typedef in data["typedef"].values():
+				if not 'doc' in typedef:
+					if "struct" in typedef and "func" in typedef["struct"]:
+						if len([i for i in typedef["struct"]["func"].values() if 'doc' in i]) <= 0:
+							continue
+					else:
+						continue
 				mix_name = '%s|%s%s/%s.html' % (typedef["name"], domain, path, typedef["name"])
 				lib[mix_name] = None
 
 				if "struct" in typedef and "func" in typedef["struct"]:
 					for func in typedef["struct"]["func"].values():
+						if not 'doc' in func:
+							continue
 						if not lib[mix_name]:
 							lib[mix_name] = dict()
 						lib[mix_name]['%s|%s%s/%s_%s.html' % (func["name"], domain, path, typedef["name"], func["name"])] = None
