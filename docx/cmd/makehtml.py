@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # @arg: qiniu/docx/docx/cmd/godir api
 #  @arg: qiniu/docx/docx/cmd/godir api > qiniu/docx/docx/cmd/index.html
+#  @&&: open out/github.com/qiniu/api/fop/ImageView_MakeRequest.html
 # @&&: open out/github.com/qiniu/api/rs/PutPolicy.html
 import gojspp
 import sys
@@ -12,6 +13,7 @@ import shutil
 
 domain = "/api/"
 # domain = "file:///Volumes/CheneyHome/qiniu/docx/docx/cmd/out/"
+# domain = "Y:\qiniu\docx\docx\cmd\out/"
 outdir = "%s/out" % sys.path[0]
 tpldir = "%s/template" % sys.path[0]
 
@@ -29,12 +31,12 @@ def save(path, data):
 	if not os.path.exists(dirpath):
 		os.makedirs(dirpath)
 	f = open(path, "w")
-	f.write(data.encode("utf-8"))
+	f.write(data)
 	f.close()
 
-def save_to_base(path, content, data):
+def save_to_base(path, content, data, name):
 	global template
-	body = template.body(content=content, detail=data, domain=domain)
+	body = template.body(content=content, detail=data, domain=domain, name=name)
 	save(path, body)
 
 class cls(object):
@@ -70,7 +72,7 @@ def make(datas, content):
 				filename = "%s.html" % (func["name"])
 				func["domain"] = domain
 				html = template.func(func)
-				save_to_base(dirpath + "/" + filename, content, html)
+				save_to_base(dirpath + "/" + filename, content, html, func["name"] + " Function")
 
 		if "typedef" in data:
 			for typedef in data["typedef"].values():
@@ -81,11 +83,11 @@ def make(datas, content):
 					else:
 						continue
 				filename = "%s.html" % typedef["name"]
-				
+
 				typedef['pkg'] = data['pkg']
 				typedef["domain"] = domain
 				html = template.type(typedef)
-				save_to_base(dirpath + "/" + filename, content, html)
+				save_to_base(dirpath + "/" + filename, content, html, typedef["name"])
 
 				if "struct" in typedef and "func" in typedef["struct"]:
 					for func in typedef["struct"]["func"].values():
@@ -96,7 +98,7 @@ def make(datas, content):
 						func["domain"] = domain
 						func["struct"] = typedef
 						html = template.func(func)
-						save_to_base(dirpath + "/" + filename, content, html)
+						save_to_base(dirpath + "/" + filename, content, html, func["name"])
 
 def make_content(datas):
 	mm = {}

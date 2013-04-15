@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import sys
 import re
-_r = re.compile(r"\$([\w_'\"\[\]]+\]|\w+[a-zA-Z0-9])")
+_r = re.compile(r"\$([\w_'\"\[\]]+\]|\w*[a-zA-Z0-9])")
 class Tpl(object):
 	def __init__(self, tpl):
-		self.tpl = [line.strip() for line in tpl.split("\n")]
+		self.tpl = [line.lstrip() for line in tpl.split("\n")]
 
 	def substitute(self, *args, **kwargs):
-		py, level = [], 0
+		py, level = ['# -*- coding: utf-8 -*-'], 0
 		args = args[0] if len(args)>0 else kwargs
 		for tpl_line in self.tpl:
 			if tpl_line.startswith("{") and tpl_line.endswith("}"):
@@ -26,19 +26,19 @@ class Tpl(object):
 				level += level_change
 				continue
 			ret = _r.findall(tpl_line)
-			extend = "" if len(ret)<=0 else " %% (%s)" % ", ".join(ret)
-			py.append("%s_html.append('''%s'''%s)" % ('\t' * level, _r.sub("%s", tpl_line), extend))
+			extend = "" if len(ret)<=0 else " %% (u(%s))" % "), u(".join(ret)
+			py.append("%s_html.append(u'''%s'''%s)" % ('\t' * level, _r.sub("%s", tpl_line), extend))
 		return self.sandboxes('\n'.join(py), args)
 		
 	def sandboxes(self, _html_py, _args):
 		vars().update(_args)
 		_html = []
-		isset, echo = self.isset(_args), _html.append
+		isset, echo, u = self.isset(_args), _html.append, self.u()
 		tpl = self.template(_html)
 		if _args.get("debug", False):
 			print _html_py
 		exec(_html_py)
-		return "\n".join(_html)
+		return ("\n".join(_html)).encode("utf-8", "ignore")
 	
 	def isset(self, args):
 		return lambda x: x in args
@@ -48,6 +48,19 @@ class Tpl(object):
 			_html.append(t(kwargs))
 			return
 		return wrapper
+	
+	def u(self):
+		def wrapper(a):
+			if isinstance(a, str):
+				return unicode(a, 'utf-8')
+			
+			if isinstance(a, unicode):
+				return a
+			
+			return unicode(str(a), 'utf-8')
+		return wrapper
 
 if __name__ == "__main__":
-	_ = lambda x: x
+	a = "你好"
+	b = u"你的"
+	print Tpl("dd你好$a$b").substitute(a=a, b=b, debug=True)

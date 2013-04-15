@@ -1,32 +1,43 @@
 <script>
 var tname = '$name';
 </script>
-<h5>Package $pkg</h5>
-<h3>$name</h3>
-<blockquote>
+<div>
 {if isset('doc') and 'beief' in doc}
 $doc['beief']
 {end}
-</blockquote>
+</div>
+<h3>结构</h3>
+<div class="syntax_label">go</div>
+{if isset('typeref')}
+<pre class="syntax_pre"><code>type $name $typeref['name']
+{else}
+<pre class="syntax_pre"><code>type $name struct {
+{if isset('struct') and 'vars' in struct}
+{for var in struct['vars']}
+	\t$var['display_name']
+{end}
+{end}
+}
+</code></pre>
 
 {if isset('struct') and 'vars' in struct}
-	<h4>Field</h4> <hr>
+	<h3>字段</h3>
 	{for var in struct['vars']}
 		<li>
-		{if 'name' in var}
-			$var['name'] <label class="var_type">
-				{if 'array' in var["type"]}
-					$var["type"]["array"]
+			{if 'name' in var}
+				<li><i class="type_name">$var['name']</i></li> 
+				<div class="type_label">
+				类型:
+				<label class="var_type">
+				$var['type']['display_name']
+				</label>
+				</div>
+
+				<blockquote>
+				{if 'doc' in var}
+				<div>$var["doc"]</div>
 				{end}
-				$var["type"]["typeref_name"]
-			</label>
-			<blockquote>
-			<div>
-			{if 'doc' in var}
-				$var['doc']
-			{end}
-			</div>
-			</blockquote>
+				</blockquote>
 			{else}
 			(extends) $var['type']['typeref_name']
 		{end}
@@ -34,7 +45,7 @@ $doc['beief']
 	{end}
 {end}
 {if isset('struct') and 'func' in struct}
-	<h4>Methods</h4><hr>
+	<h3>方法</h3>
 	{for func in struct['func'].values()}
 		<li>
 			<a href="$name_$func['name'].html">$func['name']</a>
@@ -43,4 +54,16 @@ $doc['beief']
 			{end}
 		</li>
 	{end}
+{end}
+
+{if isset('doc')}
+{for otherdoc in doc}
+	{if otherdoc == 'beief'}
+		{%continue}
+	{end}
+	<h3>$otherdoc</h3>
+	<blockquote>
+	{%echo("".join(doc[otherdoc]))}
+	</blockquote>
+{end}
 {end}

@@ -1,23 +1,17 @@
 <html>
 <head>
 <meta charset="utf-8">
-<link rel="stylesheet" href="$domain/css/style.css?xfddc">
+<link rel="stylesheet" href="$domain/css/style.css?x3c">
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 </head>
 <body>
-<div class="wrap">
-	<div class="content_wrap">
+	<h1 class="TopicTitle">$name</h1>
 	<div class="content">
 	$content
-	</div>
 	</div>
 	<div class="detail">
 	$detail
 	</div>
-	
-	<div class="preview">
-	</div>
-</div>
 <script>
 var real = $(".detail").offset().left + $(".detail").width();
 var detail_left = $(".content").width();
@@ -35,14 +29,15 @@ window.onresize = function() {
 
 var page_name_start = location.href.lastIndexOf("/") + 1;
 page_name = location.href.substring(page_name_start, location.href.lastIndexOf("."));
-
-if (location.href.indexOf("#") < 0){
-	location.href = location.href + "#content_" + page_name
-}
-
-$("a[name=content_" + page_name + "]").css("color", "#4aa6dc")
-$("a[name=folder],strong[name=folder]").on("click", function() {
-	$(this).parent().next().slideToggle()
+$("a[name=content_" + page_name + "]").css("color", "#da8439")
+$("a[name=folder],label[name=folder]").on("click", function() {
+	var obj = $(this).parent().next()
+	if (obj.css("display") == "none") {
+		$(this).children("img:first").attr("src", "$domain/image/tree-extended.png?")
+	} else {
+		$(this).children("img:first").attr("src", "$domain/image/tree-fold.png")
+	}
+	obj.slideToggle()
 })
 </script>
 </body>

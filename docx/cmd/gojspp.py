@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @arg: qiniu/docx/docx/cmd/godir github
+# @arg: qiniu/docx/docx/cmd/godir token.go
 import os
 import json
 import sys
@@ -23,6 +23,7 @@ def get_json(filepaths):
 	return alldata
 
 def decode_type(decl_type):
+	display_name = ""
 	ptr = False
 	if "ptr" in decl_type:
 		ptr = True
@@ -39,8 +40,14 @@ def decode_type(decl_type):
 	del decl_type[i]
 	if ptr:
 		decl_type["ptr"] = True
+		display_name = "*"
 	if array:
 		decl_type["array"] = array
+		display_name += array
+	
+	display_name += decl_type["typeref_name"]
+	decl_type["display_name"] = display_name
+		
 	return decl_type
 
 def deal_func_doc_line(scheme, content, decl, ds):
@@ -99,6 +106,9 @@ def deal_type_doc_line(scheme, content, decl, ds):
 			except KeyError:
 				pass
 		return
+	
+	ds[scheme] = content
+	
 
 def deal_func_doc(decl):
 	if "doc" not in decl:
@@ -133,7 +143,7 @@ def deal_doc(deal_line_func, docs, decl, r):
 				continue
 
 			if not r.match(d):
-				d = " %s" % d if not d == "" else "\n"
+				d = " %s" % d if not d == "" else "\n\n"
 				if current_content[len(current_content)-1].endswith("\n"):
 					d = d[1:]
 				current_content[len(current_content)-1] += d
@@ -182,7 +192,7 @@ def format_go2json(filepath, json_output=False):
 			if "name" in decl:
 				sub_key = decl["name"]
 			elif pkg.find("/") >= 0:
-				sub_key = pkg[pkg.find("/")+1: ]
+				sub_key = pkg[pkg.rfind("/")+1: ]
 			decl = pkg
 
 		elif key == "typedef":
@@ -190,6 +200,13 @@ def format_go2json(filepath, json_output=False):
 			if "struct" in decl and "vars" in decl["struct"]:
 				for var in decl["struct"]["vars"]:
 					var["type"] = decode_type(var["type"])
+					display_name = ""
+					if "name" in var:
+						display_name += var["name"] + " "
+					display_name += var["type"]["display_name"] + " "
+					if "tag" in var:
+						display_name += var["tag"]
+					var["display_name"] = display_name.strip()
 
 			deal_type_doc(decl)
 
@@ -246,7 +263,7 @@ def walk_pathes(filepath, filter_regex):
 		for filename in path[2]:
 			if not filename.endswith(".go") or filename.endswith("_test.go"):
 				continue
-			if filter_regex and not len(re.findall(filter_regex, path[0])) > 0:
+			if filter_regex and not len(re.findall(filter_regex, _path + "/" + filename)) > 0:
 				continue
 			filenames.append(_path + "/" + filename)
 		if len(filenames) <= 0:

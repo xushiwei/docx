@@ -1,25 +1,55 @@
 <script>
 var tname = '$name';
 </script>
-<h3>
-{if isset("struct")}
-<a href="$struct['name'].html">$struct['name']</a> .
-{end}
-$name
-</h3>
 {if isset('doc')}
 $doc['beief']
 {end}
+
+<h3>文法</h3>
+<div class="syntax_label">go</div>
+
+{%arg_string=[]}
 {if isset('args')}
-	<h4>params</h4><hr>
-	{for i in args}
-		<li>$i['name'] <label class="var_type">
-		{if 'array' in i["type"]}
-			$i["type"]["array"]
+	{for a in args}
+		{%arg_string.append(a['name'] + " " + a['type']['display_name'])}
+	{end}
+{end}
+{%arg_string=', '.join(arg_string)}
+
+{%ret_str=[]}
+{if isset('returns')}
+	{for ret in returns}
+		{if not 'name' in ret}
+			{%ret_str.append('%s' % (ret['type']['display_name']))}
+		{else}
+			{%ret_str.append('%s %s' % (ret['name'], ret['type']['display_name']))}
 		{end}
-		$i['type']['typeref_name']
-		</label></li>
+	{end}
+{end}
+{%ret_str=', '.join(ret_str)}
+{%ret_str = '(%s)' % ret_str if len(ret_str) > 0 else ''}
+
+<pre class="syntax_pre">
+{if isset('recvr')}
+<code>func ($recvr['name'] $recvr['type']['name']) $name($arg_string) $ret_str {}</code>
+{else}
+<code>func $name($arg_string) $ret_str {}</code>
+{end}
+</pre>
+
+
+{if isset('args')}
+	<h3>参数</h3>
+	{for i in args}
+		<li><i class="type_name">$i['name']</i></li> 
+		<div class="type_label">
+			类型:
+			<label class="var_type">
+			$i['type']['display_name']
+			</label>
+		</div>
 		<blockquote>
+		
 			{if 'doc' in i}
 			<div>$i["doc"]</div>
 			{end}
@@ -27,38 +57,22 @@ $doc['beief']
 	{end}
 {end}
 {if isset('returns')}
-	{if len(returns) == 1}
-		<hr>
-		<label class="var_type">
-		returns
-		</label>
-		{%i = returns[0]}
-		{if 'array' in i["type"]}
-			$i["type"]["array"]
-		{end}
-			$i["type"]["typeref_name"]
-
-	{else}
-	<h4>returns</h4>
-	<hr>
+	<h3>返回值</h3>
 	{for i in returns}
-		<li>
 		{if 'name' in i}
-		$i['name']
+		<li><i class="type_name">$i['name']</i></li> 
 		{end}
-		<label class="var_type">
-		{if 'array' in i["type"]}
-			$i["type"]["array"]
-		{end}
-			$i["type"]["typeref_name"]
-		</label>
-		</li>
+		<div class="type_label">
+			类型:
+			<label class="var_type">
+			$i['type']['display_name']
+			</label>
+		</div>
 		<blockquote>
 			{if 'doc' in i}
-			desc: $i["doc"]
+			$i["doc"]
 			{end}
 		</blockquote>
-	{end}
 	{end}
 {end}
 {if isset('doc')}

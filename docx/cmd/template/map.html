@@ -12,14 +12,14 @@
 <label>
 {if key.find('|') > 0}
 	{if value is not None}
-	<a href="javascript:;" name="folder">-</a>
+	<a href="javascript:;" name="folder" class="folder"><img src="$domain/image/tree-extended.png?" align="absmiddle"></a>
 	{end}
 
 	{%key, url = key.split('|')}
 	{%rkey = url[url.rfind('/')+1: -5]}
 	<a href="$url" name="content_$rkey">$key</a>
 {else}
-	<strong class="folder" name="folder"><img src="$domain/image/folder.png" align="absmiddle">$key</strong>
+	<label class="folder" name="folder"><img src="$domain/image/tree-extended.png?" align="absmiddle"> $key</label>
 {end}
 </label>
 <blockquote>

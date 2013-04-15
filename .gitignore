@@ -9,3 +9,5 @@ jspt.bat
 *.summary
 
 .DS_Store
+
+*.pyc
