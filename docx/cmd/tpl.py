@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import re
+
 _r = re.compile(r"\$([\w_'\"\[\]]+\]|\w*[a-zA-Z0-9])")
 class Tpl(object):
 	def __init__(self, tpl):
@@ -26,14 +27,14 @@ class Tpl(object):
 				level += level_change
 				continue
 			ret = _r.findall(tpl_line)
-			extend = "" if len(ret)<=0 else " %% (u(%s))" % "), u(".join(ret)
+			extend = "" if len(ret)<=0 else " %% (_u(%s))" % "), _u(".join(ret)
 			py.append("%s_html.append(u'''%s'''%s)" % ('\t' * level, _r.sub("%s", tpl_line), extend))
 		return self.sandboxes('\n'.join(py), args)
 		
 	def sandboxes(self, _html_py, _args):
 		vars().update(_args)
 		_html = []
-		isset, echo, u = self.isset(_args), _html.append, self.u()
+		isset, echo, _u = self.isset(_args), _html.append, self.u()
 		tpl = self.template(_html)
 		if _args.get("debug", False):
 			print _html_py
@@ -53,10 +54,8 @@ class Tpl(object):
 		def wrapper(a):
 			if isinstance(a, str):
 				return unicode(a, 'utf-8')
-			
 			if isinstance(a, unicode):
 				return a
-			
 			return unicode(str(a), 'utf-8')
 		return wrapper
 

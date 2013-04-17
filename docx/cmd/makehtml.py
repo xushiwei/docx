@@ -3,7 +3,7 @@
 # @arg: qiniu/docx/docx/cmd/godir api
 #  @arg: qiniu/docx/docx/cmd/godir api > qiniu/docx/docx/cmd/index.html
 #  @&&: open out/github.com/qiniu/api/fop/ImageView_MakeRequest.html
-# @&&: open out/github.com/qiniu/api/rs/PutPolicy.html
+# @&&: open out/github.com/qiniu/api/resumable/io/SetSettings.html
 import gojspp
 import sys
 import tpl
@@ -12,7 +12,7 @@ import os
 import shutil
 
 domain = "/api/"
-# domain = "file:///Volumes/CheneyHome/qiniu/docx/docx/cmd/out/"
+domain = "file:///Volumes/CheneyHome/qiniu/docx/docx/cmd/out/"
 # domain = "Y:\qiniu\docx\docx\cmd\out/"
 outdir = "%s/out" % sys.path[0]
 tpldir = "%s/template" % sys.path[0]

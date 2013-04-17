@@ -49,7 +49,6 @@ $doc['beief']
 			</label>
 		</div>
 		<blockquote>
-		
 			{if 'doc' in i}
 			<div>$i["doc"]</div>
 			{end}
@@ -80,7 +79,7 @@ $doc['beief']
 	{if i == 'beief'}
 		{%continue}
 	{end}
-	<h4>$i</h4><hr>
+	<h3>$i</h3>
 	<blockquote>
 	{%echo("".join(doc[i]))}
 	</blockquote>

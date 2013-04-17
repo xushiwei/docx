@@ -57,13 +57,13 @@ $doc['beief']
 {end}
 
 {if isset('doc')}
-{for otherdoc in doc}
-	{if otherdoc == 'beief'}
+{for d in doc}
+	{if d == 'beief'}
 		{%continue}
 	{end}
-	<h3>$otherdoc</h3>
+	<h3>$d</h3>
 	<blockquote>
-	{%echo("".join(doc[otherdoc]))}
+	{%echo("".join(doc[d]))}
 	</blockquote>
 {end}
 {end}

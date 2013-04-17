@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @arg: qiniu/docx/docx/cmd/godir token.go
+# @arg: qiniu/docx/docx/cmd/godir api
 import os
 import json
 import sys
@@ -13,7 +13,7 @@ re_cmt = re.compile(r"^(\s*\*/|/\*\*+|\s*\*|//\s*)")
 def get_json(filepaths):
 	alldata = []
 	for filepath in filepaths:
-		data = os.popen("go2json %s" % filepath).read()
+		data = os.popen("%s/../bin/go2json %s" % (sys.path[0], filepath)).read()
 		data = json.loads(data)
 		alldata.extend(data["decls"])
 	f = open(filepath, "r")
@@ -37,13 +37,19 @@ def decode_type(decl_type):
 	for i in [i for i in decl_type]:
 		for j in decl_type[i]:
 			decl_type["%s_%s" % (i, j)] = decl_type[i][j]
-	del decl_type[i]
+	try:
+		del decl_type[i]
+	except NameError:
+		pass
 	if ptr:
 		decl_type["ptr"] = True
 		display_name = "*"
 	if array:
 		decl_type["array"] = array
 		display_name += array
+	
+	if 'typeref_ns' in decl_type:
+		display_name += "%s." % decl_type["typeref_ns"]
 	
 	display_name += decl_type["typeref_name"]
 	decl_type["display_name"] = display_name
@@ -58,11 +64,17 @@ def deal_func_doc_line(scheme, content, decl, ds):
 	if scheme in ["args", "returns"]:
 		content = filter(None, content)
 		for arg_string in content:
-			args_desc = re_kv.findall(arg_string)[0]
-			for arg in decl[scheme]:
-				if arg["name"] == args_desc[0]:
-					arg["doc"] = args_desc[1]
-					break
+			kv = re_kv.findall(arg_string)
+			if len(kv) == 0 and len(decl[scheme]) == 1 and not "name" in decl[scheme][0]:
+				# only one arg which without name
+				decl[scheme][0]["doc"] = arg_string
+			elif len(kv) > 0:
+				for arg in decl[scheme]:
+					if arg["name"] == kv[0][0]:
+						arg["doc"] = kv[0][1]
+						break
+			else:
+				print arg_string
 		return
 
 	ds[scheme] = content
@@ -138,7 +150,7 @@ def deal_doc(deal_line_func, docs, decl, r):
 			d = d.strip()
 			if d.startswith("@"):
 				deal_line_func(current_scheme, current_content, decl, ds)
-				current_scheme = re.findall(r"@(\w+)", d)[0]
+				current_scheme = re.findall(r"@([^\s]+)", d)[0]
 				current_content = [d[len(current_scheme)+1:].strip()]
 				continue
 
@@ -244,6 +256,31 @@ def format_go2json(filepath, json_output=False):
 				if "name" not in struct_dict:
 					struct_dict["name"] = struct_name
 				continue
+			
+			if decl["name"].startswith("New"):
+				is_added = False
+				for returns in decl["returns"]:
+					struct_name = returns["type"]["display_name"]
+					struct_name = re.sub(r"\*", "", struct_name)
+					if "typedef" not in result:
+						continue
+					if not struct_name in result["typedef"]:
+						continue
+					is_added = True
+					struct_dict = result["typedef"][struct_name]
+					if not "struct" in struct_dict:
+						struct_dict["struct"] = dict()
+					struct = struct_dict["struct"]
+					
+					if not "func" in struct:
+						struct["func"] = dict()
+					struct["func"][decl["name"]] = decl
+					break
+				if is_added:
+					continue
+					
+					
+					
 
 		result[key][sub_key] = decl
 	if not json_output:
