@@ -3,7 +3,7 @@ var tname = '$name';
 </script>
 <div>
 {if isset('doc') and 'beief' in doc}
-$doc['beief']
+{%echo(format(doc['beief']))}
 {end}
 </div>
 <h3>结构</h3>
@@ -35,7 +35,9 @@ $doc['beief']
 
 				<blockquote>
 				{if 'doc' in var}
-				<div>$var["doc"]</div>
+				<div>
+				{%echo(format(var["doc"]))}
+				</div>
 				{end}
 				</blockquote>
 			{else}
@@ -46,14 +48,19 @@ $doc['beief']
 {end}
 {if isset('struct') and 'func' in struct}
 	<h3>方法</h3>
+	<table>
 	{for func in struct['func'].values()}
-		<li>
-			<a href="$name_$func['name'].html">$func['name']</a>
+		<tr>
+			<th>
+				<a href="$name_$func['name'].html">$func['name']</a>
+			</th> <td>
 			{if 'doc' in func and 'beief' in func['doc']}
-			<blockquote>$func['doc']['beief']</blockquote>
+			{%echo(format(func['doc']['beief']))}
 			{end}
-		</li>
+			</td>
+		</tr>
 	{end}
+	</table>
 {end}
 
 {if isset('doc')}
@@ -63,7 +70,7 @@ $doc['beief']
 	{end}
 	<h3>$d</h3>
 	<blockquote>
-	{%echo("".join(doc[d]))}
+	{%echo(format(doc[d]))}
 	</blockquote>
 {end}
 {end}

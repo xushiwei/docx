@@ -2,7 +2,7 @@
 var tname = '$name';
 </script>
 {if isset('doc')}
-$doc['beief']
+{%echo(format(doc['beief']))}
 {end}
 
 <h3>文法</h3>
@@ -50,7 +50,9 @@ $doc['beief']
 		</div>
 		<blockquote>
 			{if 'doc' in i}
-			<div>$i["doc"]</div>
+			<div>
+			{%echo(format(i["doc"]))}
+			</div>
 			{end}
 		</blockquote>
 	{end}
@@ -69,7 +71,7 @@ $doc['beief']
 		</div>
 		<blockquote>
 			{if 'doc' in i}
-			$i["doc"]
+			{%echo(format(i["doc"]))}
 			{end}
 		</blockquote>
 	{end}
@@ -81,7 +83,7 @@ $doc['beief']
 	{end}
 	<h3>$i</h3>
 	<blockquote>
-	{%echo("".join(doc[i]))}
+	{%echo(format(doc[i]))}
 	</blockquote>
 {end}
 {end}

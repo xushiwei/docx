@@ -134,3 +134,30 @@ li {
 .type_name {
 	color: #000;
 }
+
+table {
+	border-collapse:separate;
+	border-spacing: 0;
+	min-width: 600px;
+}	
+
+table th {
+	text-align: left;
+	background:#ededed;
+	width: 40%;
+}
+
+table th a {
+	color: #dbdbdb;
+}
+
+table td, table th {
+	margin: 0;
+	padding: 8px;
+	border-bottom: 1px solid #dbdbdb;
+}
+
+table tr{
+	margin: 0;
+	border-bottom: 1px solid #000;
+}

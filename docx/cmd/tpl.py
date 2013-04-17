@@ -20,8 +20,8 @@ class Tpl(object):
 					level -= 1
 				elif tpl_line.startswith("%"):
 					level_change = 0
-					
-				tpl_line = tpl_line[1:] if tpl_line.startswith("%") else "%s:" % tpl_line 
+
+				tpl_line = tpl_line[1:] if tpl_line.startswith("%") else "%s:" % tpl_line
 				if level_change >= 0:
 					py.append("%s%s" % ('\t' * level, tpl_line.strip()))
 				level += level_change
@@ -30,7 +30,7 @@ class Tpl(object):
 			extend = "" if len(ret)<=0 else " %% (_u(%s))" % "), _u(".join(ret)
 			py.append("%s_html.append(u'''%s'''%s)" % ('\t' * level, _r.sub("%s", tpl_line), extend))
 		return self.sandboxes('\n'.join(py), args)
-		
+
 	def sandboxes(self, _html_py, _args):
 		vars().update(_args)
 		_html = []
@@ -40,16 +40,16 @@ class Tpl(object):
 			print _html_py
 		exec(_html_py)
 		return ("\n".join(_html)).encode("utf-8", "ignore")
-	
+
 	def isset(self, args):
 		return lambda x: x in args
-	
+
 	def template(self, _html):
 		def wrapper(t, **kwargs):
 			_html.append(t(kwargs))
 			return
 		return wrapper
-	
+
 	def u(self):
 		def wrapper(a):
 			if isinstance(a, str):
