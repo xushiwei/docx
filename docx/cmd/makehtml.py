@@ -22,7 +22,7 @@ def format_content(content):
 		content = "".join(content)
 	
 	content = re.sub(r"@ref{([^}]+)}", u"<a href='\\1.html'>参照\\1</a>", content)
-	content = re.sub(r"@link{([^|]+|[^}]+)}", u"<a href='\\1'>\\2</a>", content)
+	content = re.sub(r"@link{([^\|]+)\|([^}]+)}", "<a href='\\1'>\\2</a>", content)
 	
 	return content
 
