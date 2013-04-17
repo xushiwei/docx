@@ -8,3 +8,14 @@ jspt.bat
 *.htm
 *.summary
 
+.DS_Store
+
+*.pyc
+
+docx/cmd/godir
+docx/cmd/out
+docx/cmd/md_out
+
+*.DS_Store
+
+*.gitignore
