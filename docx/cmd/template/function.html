@@ -1,0 +1,89 @@
+<script>
+var tname = '$name';
+</script>
+{if isset('doc')}
+{%echo(format(doc['beief']))}
+{end}
+
+<h3>文法</h3>
+<div class="syntax_label">go</div>
+
+{%arg_string=[]}
+{if isset('args')}
+	{for a in args}
+		{%arg_string.append(a['name'] + " " + a['type']['display_name'])}
+	{end}
+{end}
+{%arg_string=', '.join(arg_string)}
+
+{%ret_str=[]}
+{if isset('returns')}
+	{for ret in returns}
+		{if not 'name' in ret}
+			{%ret_str.append('%s' % (ret['type']['display_name']))}
+		{else}
+			{%ret_str.append('%s %s' % (ret['name'], ret['type']['display_name']))}
+		{end}
+	{end}
+{end}
+{%ret_str=', '.join(ret_str)}
+{%ret_str = '(%s)' % ret_str if len(ret_str) > 0 else ''}
+
+<pre class="syntax_pre">
+{if isset('recvr')}
+<code>func ($recvr['name'] $recvr['type']['name']) $name($arg_string) $ret_str {}</code>
+{else}
+<code>func $name($arg_string) $ret_str {}</code>
+{end}
+</pre>
+
+
+{if isset('args')}
+	<h3>参数</h3>
+	{for i in args}
+		<li><i class="type_name">$i['name']</i></li> 
+		<div class="type_label">
+			类型:
+			<label class="var_type">
+			$i['type']['display_name']
+			</label>
+		</div>
+		<blockquote>
+			{if 'doc' in i}
+			<div>
+			{%echo(format(i["doc"]))}
+			</div>
+			{end}
+		</blockquote>
+	{end}
+{end}
+{if isset('returns')}
+	<h3>返回值</h3>
+	{for i in returns}
+		{if 'name' in i}
+		<li><i class="type_name">$i['name']</i></li> 
+		{end}
+		<div class="type_label">
+			类型:
+			<label class="var_type">
+			$i['type']['display_name']
+			</label>
+		</div>
+		<blockquote>
+			{if 'doc' in i}
+			{%echo(format(i["doc"]))}
+			{end}
+		</blockquote>
+	{end}
+{end}
+{if isset('doc')}
+{for i in doc}
+	{if i == 'beief'}
+		{%continue}
+	{end}
+	<h3>$i</h3>
+	<blockquote>
+	{%echo(format(doc[i]))}
+	</blockquote>
+{end}
+{end}
