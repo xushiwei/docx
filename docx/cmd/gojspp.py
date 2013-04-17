@@ -150,7 +150,7 @@ def deal_doc(deal_line_func, docs, decl, r):
 			d = d.strip()
 			if d.startswith("@"):
 				deal_line_func(current_scheme, current_content, decl, ds)
-				current_scheme = re.findall(r"@([^\s]+)", d)[0]
+				current_scheme = re.findall(r"^@([^\s]+)", d)[0]
 				current_content = [d[len(current_scheme)+1:].strip()]
 				continue
 
