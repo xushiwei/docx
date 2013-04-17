@@ -48,7 +48,7 @@ var tname = '$name';
 {end}
 {if isset('struct') and 'func' in struct}
 	<h3>方法</h3>
-	<table>
+	<table class="methods">
 	{for func in struct['func'].values()}
 		<tr>
 			<th>
