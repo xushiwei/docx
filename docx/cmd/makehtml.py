@@ -12,8 +12,6 @@ import os
 import shutil
 
 domain = "/api/"
-domain = "file:///Volumes/CheneyHome/qiniu/docx/docx/cmd/out/"
-# domain = "Y:\qiniu\docx\docx\cmd\out/"
 outdir = "%s/out" % sys.path[0]
 tpldir = "%s/template" % sys.path[0]
 
