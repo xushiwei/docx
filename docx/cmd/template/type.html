@@ -46,13 +46,30 @@ var tname = '$name';
 		</li>
 	{end}
 {end}
+{if isset('struct') and 'construct' in struct}
+	<h3>构造函数</h3>
+	<table class="methods">
+	{for construct in struct['construct']}
+		<tr>
+			<th>
+				<a href="$name/$construct['name'].html">$construct['name']</a>
+			</th> <td>
+			{if 'doc' in construct and 'beief' in construct['doc']}
+			{%echo(format(construct['doc']['beief']))}
+			{end}
+			</td>
+		</tr>
+	{end}
+	</table>
+
+{end}
 {if isset('struct') and 'func' in struct}
 	<h3>方法</h3>
 	<table class="methods">
-	{for func in struct['func'].values()}
+	{for func in struct['func']}
 		<tr>
 			<th>
-				<a href="$name_$func['name'].html">$func['name']</a>
+				<a href="$name/$func['name'].html">$func['name']</a>
 			</th> <td>
 			{if 'doc' in func and 'beief' in func['doc']}
 			{%echo(format(func['doc']['beief']))}

@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @arg: qiniu/docx/docx/cmd/godir api
+# @arg: qiniu/docx/docx/cmd/godir rs
 import os
 import json
 import sys
 import re
 import errno
+import operator
 
 re_kv = re.compile(r"^(\w+):\s*([^$]*)")
 re_cmt = re.compile(r"^(\s*\*/|/\*\*+|\s*\*|//\s*)")
@@ -51,7 +52,8 @@ def decode_type(decl_type):
 	if 'typeref_ns' in decl_type:
 		display_name += "%s." % decl_type["typeref_ns"]
 	
-	display_name += decl_type["typeref_name"]
+	if "typeref_name" in decl_type:
+		display_name += decl_type["typeref_name"]
 	decl_type["display_name"] = display_name
 		
 	return decl_type
@@ -272,17 +274,25 @@ def format_go2json(filepath, json_output=False):
 						struct_dict["struct"] = dict()
 					struct = struct_dict["struct"]
 					
-					if not "func" in struct:
-						struct["func"] = dict()
-					struct["func"][decl["name"]] = decl
+					if not "construct" in struct:
+						struct["construct"] = list()
+					struct["construct"].append(decl)
 					break
 				if is_added:
 					continue
-					
-					
-					
 
 		result[key][sub_key] = decl
+	
+	if "typedef" in result:
+		keys = result["typedef"].keys()
+		keys.sort()
+		result["typedef"] = [result["typedef"][i] for i in keys]
+		
+		for typedef in result["typedef"]:
+			if "struct" in typedef and "func" in typedef["struct"]:
+				keys = typedef["struct"]["func"].keys()
+				keys.sort()
+				typedef["struct"]["func"] = [typedef["struct"]["func"][i] for i in keys]
 	if not json_output:
 		return result
 	return json.dumps(result)
