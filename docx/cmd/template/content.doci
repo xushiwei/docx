@@ -9,8 +9,6 @@ github.com/qiniu/api
 		Client
 	resumable/io
 		Put
-	auth/digest
-		Sign
 	io
 		Put
 		GetUrl
