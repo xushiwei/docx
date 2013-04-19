@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#  @arg: qiniu/docx/docx/cmd/godir api 
 # @arg: qiniu/docx/docx/cmd/godir api
 #  @&&: open index.html
 #  @&&: open out/github.com/qiniu/api/rs/Client.html
@@ -19,6 +18,7 @@ outdir = "%s/out" % sys.path[0]
 tpldir = "%s/template" % sys.path[0]
 
 re_var = re.compile(r"\\([\w\.]+)")
+re_var_d = re.compile(r"\\([\w\.]+)\[([^\]]+)\]")
 re_link = re.compile(r"@link{([^\|]+)\|([^}]+)}")
 re_typename = re.compile(r"[\[\]\*]")
 
@@ -34,6 +34,15 @@ def format_content(content, pkg):
 	global all_index
 	if isinstance(content, list):
 		content = "".join(content)
+	varm = re_var_d.findall(content)
+	if varm:
+		for var, name in varm:
+			key = "%s/%s" % (pkg, var) if var.find('.') < 0 else var.replace('.', '/')
+			match = [i for i in all_index if i.endswith(key)]
+			if len(match) <= 0:
+				continue
+			content = content.replace("\\%s[%s]" % (var, name), '<a href="%s/%s.html">%s</a>' % (domain, match[0], name))
+
 	varm = re_var.findall(content)
 	if varm:
 		for var in varm:

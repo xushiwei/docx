@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @arg: qiniu/docx/docx/cmd/godir api
+# @arg: qiniu/docx/docx/cmd/godir image_info
 import os
 import json
 import sys
@@ -76,7 +76,7 @@ def deal_func_doc_line(scheme, content, decl, ds):
 						arg["doc"] = kv[0][1]
 						break
 			else:
-				print arg_string
+				print arg_string.encode('utf-8', 'ignore')
 		return
 
 	ds[scheme] = content
@@ -100,7 +100,7 @@ def deal_type_doc(decl):
 		fields = [i["name"] for i in decl["struct"]["vars"]]
 	r = make_names_match_regex(fields)
 
-	decl["doc"] = deal_doc(deal_type_doc_line, docs, decl, r)
+	decl["doc"] = deal_doc(deal_type_doc_line, docs, decl, r, "vars")
 
 def deal_type_doc_line(scheme, content, decl, ds):
 	if scheme == "beief":
@@ -136,9 +136,9 @@ def deal_func_doc(decl):
 
 	r = make_names_match_regex(args)
 
-	decl["doc"] = deal_doc(deal_func_doc_line, docs, decl, r)
+	decl["doc"] = deal_doc(deal_func_doc_line, docs, decl, r, "args")
 
-def deal_doc(deal_line_func, docs, decl, r):
+def deal_doc(deal_line_func, docs, decl, r, default_arg_name):
 	ds = dict(
 		beief = ""
 	)
@@ -162,6 +162,10 @@ def deal_doc(deal_line_func, docs, decl, r):
 					d = d[1:]
 				current_content[len(current_content)-1] += d
 			else:
+				if current_scheme == 'beief':
+					deal_line_func(current_scheme, current_content, decl, ds)
+					current_scheme = default_arg_name
+					current_content = [""]
 				current_content.append(d)
 
 	deal_line_func(current_scheme, current_content, decl, ds)
@@ -362,4 +366,4 @@ if __name__ == "__main__":
 		exit("miss file")
 
 	filter_regex = sys.argv[2] if len(sys.argv) >= 3 else None
-	print do(sys.argv[1], filter_regex, json_output=True)
+	do(sys.argv[1], filter_regex)
