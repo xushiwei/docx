@@ -23,7 +23,9 @@
 {%result = result[1:]}
 {end}
 {if package}
-	<label class="folder" name="folder"><img src="$domain/image/tree-extended.png?" align="absmiddle"> $key</label>
+	<label class="folder" name="folder"><img src="$domain/image/tree-extended.png?" align="absmiddle">
+	{%echo(key.replace("/", " &raquo; "))}
+	</label>
 {else}
 	{if len(result) > 0}
 	<a href="javascript:;" name="folder" class="folder"><img src="$domain/image/tree-extended.png?" align="absmiddle"></a>

@@ -3,7 +3,7 @@
 #  @arg: qiniu/docx/docx/cmd/godir api 
 # @arg: qiniu/docx/docx/cmd/godir api
 #  @&&: open index.html
-# @&&: open out/github.com/qiniu/api/rs/Client.html
+#  @&&: open out/github.com/qiniu/api/rs/Client.html
 #  @&&: open out/github.com/qiniu/api/resumable/io/SetSettings.html
 import gojspp
 import sys
@@ -12,18 +12,36 @@ import re
 import os
 import shutil
 
-domain = "/api/"
-domain = "/Volumes/CheneyHome/qiniu/docx/docx/cmd/out/"
+domain = "/api"
+domain = "/Volumes/CheneyHome/qiniu/docx/docx/cmd/out"
 # domain = "Y:\qiniu\docx\docx\cmd\out/"
 outdir = "%s/out" % sys.path[0]
 tpldir = "%s/template" % sys.path[0]
 
-def format_content(content):
+re_var = re.compile(r"\\([\w\.]+)")
+re_link = re.compile(r"@link{([^\|]+)\|([^}]+)}")
+re_typename = re.compile(r"[\[\]\*]")
+
+def link_type(typename, pkg):
+	global all_index
+	name = re_typename.sub("", typename)
+	match = [i for i in all_index if i.endswith("%s/%s" % (pkg, name))]
+	if match:
+		return '<a href="%s/%s.html">%s</a>' % (domain, match[0], typename)
+	return typename
+
+def format_content(content, pkg):
+	global all_index
 	if isinstance(content, list):
 		content = "".join(content)
-	
-	content = re.sub(r"@ref{([^}]+)}", u"<a href='\\1.html'>参照\\1</a>", content)
-	content = re.sub(r"@link{([^\|]+)\|([^}]+)}", "<a href='\\1'>\\2</a>", content)
+	varm = re_var.findall(content)
+	if varm:
+		for var in varm:
+			key = "%s/%s" % (pkg, var) if var.find('.') < 0 else var.replace('.', '/')
+			match = [i for i in all_index if i.endswith(key)]
+			if len(match) <= 0:
+				continue
+			content = content.replace("\\" + var, '<a href="%s/%s.html">%s</a>' % (domain, match[0], var))
 	
 	return content
 
@@ -77,12 +95,13 @@ def make(datas, content):
 	for data in datas:
 		dirpath = data["pkg_path"]
 		if "func" in data:
-			funcs = [data["func"][i] for i in sorted(data["func"].keys())]
-			for func in funcs:
+			for func in data["func"]:
 				filename = "%s.html" % (func["name"])
 				func.update(dict(
+					pkg = data["pkg"],
 					domain = domain,
 					format = format_content,
+					linktype = link_type,
 				))
 				html = template.func(func)
 				save_to_base(dirpath + "/" + filename, content, html, func["name"])
@@ -95,8 +114,9 @@ def make(datas, content):
 					pkg = data["pkg"],
 					domain = domain,
 					format = format_content,
+					linktype = link_type,
 				))
-				
+
 				if "struct" in typedef and "construct" in typedef["struct"]:
 					for construct in typedef["struct"]["construct"]:
 						filename = "%s/%s.html" % (typedef["name"], construct["name"])
@@ -105,6 +125,7 @@ def make(datas, content):
 							domain = domain,
 							struct = typedef,
 							format = format_content,
+							linktype = link_type,
 						))
 						html = template.func(construct)
 						save_to_base(dirpath + "/" + filename, content, html, construct["name"])
@@ -117,6 +138,7 @@ def make(datas, content):
 							domain = domain,
 							struct = typedef,
 							format = format_content,
+							linktype = link_type,
 						))
 						html = template.func(func)
 						save_to_base(dirpath + "/" + filename, content, html, func["name"])
@@ -124,7 +146,9 @@ def make(datas, content):
 				html = template.type(typedef)
 				save_to_base(dirpath + "/" + type_filename, content, html, typedef["name"])
 
-def format_doci(datas):
+all_index = None
+
+def format_doci(result_keys, datas):
 	f = open("%s/template/content.doci" % sys.path[0])
 	content = f.read().split("\n")
 	f.close()
@@ -146,33 +170,72 @@ def format_doci(datas):
 	for i in result:
 		key = "%s/%s" % (i["path"], i["name"])
 		i["package"] = not key in datas
-	return template.map2(result=result, map=template.map2, domain=domain)
+	childs = []
+	result_p = [x['p'] for x in result]
+	for c in result:
+		if not c["path"]:
+			continue
+		if starts(c['p'], result_p):
+			continue
+		childs.append(c)
+	child_key = {}
+	for c in childs:
+		chs = [i for i in result_keys if i.startswith(c['p'] + "/")]
+		if len(chs) <= 0:
+			continue
+		child_key[c['p']] = chs
+		
+	new_result = []
+	for r in result:
+		new_result.append(r)
+		if r['p'] in child_key:
+			for new_path in child_key[r['p']]:
+				index = new_path.rfind('/')
+				path = new_path[:index]
+				name = new_path[index + 1:]
+				new_result.append(dict(name=name, path=path, p=new_path, package=False))
+	
+	return template.map2(result=new_result, map=template.map2, domain=domain)
+
+def starts(path, lib):
+	for l in lib:
+		if l.startswith(path + "/"):
+			return True
+	return False
 
 def make_content(datas):
+	global all_index
 	result = {}
+	keys = []
 	for data in datas:
 		path = data["pkg_path"]
 		if "func" in data:
-			for func in data["func"].values():
+			for func in data["func"]:
 				p = "%s/%s" % (path, func["name"])
 				result[p] = func
+				keys.append(p)
 		
 		if "typedef" in data:
 			for typedef in data["typedef"]:
 				p = "%s/%s" % (path, typedef["name"])
 				result[p] = typedef
-				
-				if "struct" in typedef and "func" in typedef["struct"]:
-					for func in typedef["struct"]["func"]:
-						p = "%s/%s/%s" % (path, typedef["name"], func["name"])
-						result[p] = func
-				
+				keys.append(p)
+							
 				if "struct" in typedef and "construct" in typedef["struct"]:
 					for construct in typedef["struct"]["construct"]:
 						p = "%s/%s/%s" % (path, typedef["name"], construct["name"])
 						result[p] = construct
+						keys.append(p)	
 
-	return format_doci(result)
+				if "struct" in typedef and "func" in typedef["struct"]:
+					for func in typedef["struct"]["func"]:
+						p = "%s/%s/%s" % (path, typedef["name"], func["name"])
+						result[p] = func
+						keys.append(p)				
+
+
+	all_index = keys
+	return format_doci(keys, result)
 	mm = {}
 	lines = {}
 	for data in datas:

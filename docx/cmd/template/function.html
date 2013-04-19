@@ -2,7 +2,7 @@
 var tname = '$name';
 </script>
 {if isset('doc')}
-{%echo(format(doc['beief']))}
+{%echo(format(doc['beief'], pkg))}
 {end}
 
 <h3>文法</h3>
@@ -45,13 +45,13 @@ var tname = '$name';
 		<div class="type_label">
 			类型:
 			<label class="var_type">
-			$i['type']['display_name']
+			{%echo(linktype(i['type']['display_name'], pkg))}
 			</label>
 		</div>
 		<blockquote>
 			{if 'doc' in i}
 			<div>
-			{%echo(format(i["doc"]))}
+			{%echo(format(i["doc"], pkg))}
 			</div>
 			{end}
 		</blockquote>
@@ -66,12 +66,12 @@ var tname = '$name';
 		<div class="type_label">
 			类型:
 			<label class="var_type">
-			$i['type']['display_name']
+			{%echo(linktype(i['type']['display_name'], pkg))}
 			</label>
 		</div>
 		<blockquote>
 			{if 'doc' in i}
-			{%echo(format(i["doc"]))}
+			{%echo(format(i["doc"], pkg))}
 			{end}
 		</blockquote>
 	{end}
@@ -83,7 +83,7 @@ var tname = '$name';
 	{end}
 	<h3>$i</h3>
 	<blockquote>
-	{%echo(format(doc[i]))}
+	{%echo(format(doc[i], pkg))}
 	</blockquote>
 {end}
 {end}

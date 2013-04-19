@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @arg: qiniu/docx/docx/cmd/godir rs
+# @arg: qiniu/docx/docx/cmd/godir api
 import os
 import json
 import sys
@@ -195,11 +195,11 @@ def format_go2json(filepath, json_output=False):
 			decl['doc'] = comment
 			comment = []
 
-		if key not in result:
-			result[key] = dict()
 		sub_key = None
-
 		if key == "import":
+			if key not in result:
+				result[key] = dict()
+			
 			pkg = decl["pkg"][1: -1]
 			sub_key = pkg
 
@@ -208,8 +208,13 @@ def format_go2json(filepath, json_output=False):
 			elif pkg.find("/") >= 0:
 				sub_key = pkg[pkg.rfind("/")+1: ]
 			decl = pkg
+			result[key][sub_key] = decl
+			continue
 
-		elif key == "typedef":
+		if key not in result:
+			result[key] = list()
+
+		if key == "typedef":
 			sub_key = decl["name"]
 			if "struct" in decl and "vars" in decl["struct"]:
 				for var in decl["struct"]["vars"]:
@@ -245,16 +250,19 @@ def format_go2json(filepath, json_output=False):
 				# struct method
 				struct_name = decl["recvr"]["type"]["name"]
 				if "typedef" not in result:
-					result["typedef"] = dict()
-				if struct_name not in result["typedef"]:
-					result["typedef"][struct_name] = dict()
-				struct_dict = result["typedef"][struct_name]
+					result["typedef"] = list()
+				if not in_name(struct_name, result["typedef"]):
+					struct_dict = dict(name=struct_name)
+					result["typedef"].append(struct_dict)
+				else:
+					struct_dict = in_name(struct_name, result["typedef"])
+
 				if not "struct" in struct_dict:
 					struct_dict["struct"] = dict()
 				struct = struct_dict["struct"]
 				if not "func" in struct:
-					struct["func"] = dict()
-				struct["func"][decl["name"]] = decl
+					struct["func"] = list()
+				struct["func"].append(decl)
 				if "name" not in struct_dict:
 					struct_dict["name"] = struct_name
 				continue
@@ -266,10 +274,10 @@ def format_go2json(filepath, json_output=False):
 					struct_name = re.sub(r"\*", "", struct_name)
 					if "typedef" not in result:
 						continue
-					if not struct_name in result["typedef"]:
+					if not in_name(struct_name, result["typedef"]):
 						continue
 					is_added = True
-					struct_dict = result["typedef"][struct_name]
+					struct_dict = in_name(struct_name, result["typedef"])
 					if not "struct" in struct_dict:
 						struct_dict["struct"] = dict()
 					struct = struct_dict["struct"]
@@ -281,21 +289,17 @@ def format_go2json(filepath, json_output=False):
 				if is_added:
 					continue
 
-		result[key][sub_key] = decl
+		result[key].append(decl)
 	
-	if "typedef" in result:
-		keys = result["typedef"].keys()
-		keys.sort()
-		result["typedef"] = [result["typedef"][i] for i in keys]
-		
-		for typedef in result["typedef"]:
-			if "struct" in typedef and "func" in typedef["struct"]:
-				keys = typedef["struct"]["func"].keys()
-				keys.sort()
-				typedef["struct"]["func"] = [typedef["struct"]["func"][i] for i in keys]
 	if not json_output:
 		return result
 	return json.dumps(result)
+
+def in_name(name, array):
+	for a in array:
+		if a['name'] == name:
+			return a
+	return None
 
 def walk_pathes(filepath, filter_regex):
 	pathes = []
@@ -349,11 +353,13 @@ def do(filepath, filter_regex, json_output=False):
 		data = format_go2json(path)
 		data["pkg_path"] = folder
 		datas.append(data)
-	return datas
+	if not json_output:
+		return datas
+	return json.dumps(datas)
 
 if __name__ == "__main__":
 	if len(sys.argv) <= 1:
 		exit("miss file")
 
 	filter_regex = sys.argv[2] if len(sys.argv) >= 3 else None
-	do(sys.argv[1], filter_regex)
+	print do(sys.argv[1], filter_regex, json_output=True)
