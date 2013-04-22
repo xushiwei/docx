@@ -96,10 +96,10 @@ if __name__ == "__main__":
 			# print re_md_gist.search(body).group()
 			s = re_md_gist.search(body).span()[0]
 			s = body[body[s-50: s].rfind("\n")+s-50+1: s]
-			content = "\n\n" + s + ("\n%s" % s).join(gists[key])
+			content = (("\n%s" % s).join(gists[key])).strip()
 			content = content.replace("\\", "\\\\")
 			
-			body = re.sub(r"\s*@gist\s*\(%s\)" % i, content, body)
+			body = re.sub(r"@gist\s*\(%s\)" % i, content, body)
 		else:
 			errors.append(i)
 
