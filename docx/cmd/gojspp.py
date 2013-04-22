@@ -63,7 +63,9 @@ def deal_func_doc_line(scheme, content, decl, ds):
 		ds["beief"] = ''.join(content).strip()
 		return
 
-	if scheme in ["args", "returns"]:
+	if scheme in ["args", "return"]:
+		if scheme == "return":
+			scheme = "returns"
 		content = filter(None, content)
 		for arg_string in content:
 			kv = re_kv.findall(arg_string)

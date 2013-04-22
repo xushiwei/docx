@@ -12,13 +12,14 @@ import os
 import shutil
 
 domain = "/api"
-domain = "/Volumes/CheneyHome/qiniu/docx/docx/cmd/out"
+# domain = "/Volumes/CheneyHome/qiniu/docx/docx/cmd/out"
 # domain = "Y:\qiniu\docx\docx\cmd\out/"
 outdir = "%s/out" % sys.path[0]
 tpldir = "%s/template" % sys.path[0]
 
-re_var = re.compile(r"\\([\w\.]+)")
-re_var_d = re.compile(r"\\([\w\.]+)\[([^\]]+)\]")
+re_var = re.compile(r"#([\w\.]+)")
+re_var_d = re.compile(r"#([\w\.]+)\[([^\]]+)\]")
+re_var_link = re.compile(r"#\[([^\]]+)\]\(([^\)]+)\)")
 re_link = re.compile(r"@link{([^\|]+)\|([^}]+)}")
 re_typename = re.compile(r"[\[\]\*]")
 
@@ -34,6 +35,12 @@ def format_content(content, pkg):
 	global all_index
 	if isinstance(content, list):
 		content = "".join(content)
+
+	varm = re_var_link.findall(content)
+	if varm:
+		for name, url in varm:
+			content = content.replace("#[%s](%s)" % (name, url), '<a href="%s">%s</a>' % (url, name))	
+		
 	varm = re_var_d.findall(content)
 	if varm:
 		for var, name in varm:
@@ -41,7 +48,7 @@ def format_content(content, pkg):
 			match = [i for i in all_index if i.endswith(key)]
 			if len(match) <= 0:
 				continue
-			content = content.replace("\\%s[%s]" % (var, name), '<a href="%s/%s.html">%s</a>' % (domain, match[0], name))
+			content = content.replace("#%s[%s]" % (var, name), '<a href="%s/%s.html">%s</a>' % (domain, match[0], name))
 
 	varm = re_var.findall(content)
 	if varm:
@@ -50,7 +57,7 @@ def format_content(content, pkg):
 			match = [i for i in all_index if i.endswith(key)]
 			if len(match) <= 0:
 				continue
-			content = content.replace("\\" + var, '<a href="%s/%s.html">%s</a>' % (domain, match[0], var))
+			content = content.replace("#" + var, '<a href="%s/%s.html">%s</a>' % (domain, match[0], var))
 	
 	return content
 
