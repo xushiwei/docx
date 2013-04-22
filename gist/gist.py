@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#  @arg: ../sdk/c-sdk/docs/README.gist.md
-# @arg: ../sdk/c-sdk/docs/README.gist.md
-# @&&: open index.html
 
 import sys
 import os
@@ -60,7 +57,7 @@ def search_one_block(body):
 
 if __name__ == "__main__":
 	if len(sys.argv) <= 1:
-		sys.stderr.write("Miss gist file path")
+		sys.stderr.write("Usage: %s GistFile > OutputFile\n" % os.path.basename(sys.argv[0]))
 		exit(2)
 
 	body = openfile(sys.argv[1])
