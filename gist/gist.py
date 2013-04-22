@@ -27,6 +27,8 @@ def openfile(path):
 def get_gist_block(path):
 	gists = dict()
 	body = openfile(path)
+	if body is None:
+		return gists
 	start = 0
 	while True:
 		a = search_one_block(body[start:])
@@ -55,13 +57,23 @@ def search_one_block(body):
 	body = [i[start_indent:] for i in body.split("\n")]
 	return a.group(1), body, b.span()[1] + start
 
+def dirname(path):
+	name = os.path.dirname(path)
+	if name == "":
+		name = "."
+	return name
+
 if __name__ == "__main__":
 	if len(sys.argv) <= 1:
 		sys.stderr.write("Usage: %s GistFile > OutputFile\n" % os.path.basename(sys.argv[0]))
 		exit(2)
 
 	body = openfile(sys.argv[1])
-	rpath = os.path.dirname(sys.argv[1])
+	if body is None:
+		sys.stderr.write("Not such File.")
+		exit(2)
+		
+	rpath = dirname(sys.argv[1])
 	result = []
 	files = []
 	for i in re_md_gist.findall(body):
@@ -98,4 +110,5 @@ if __name__ == "__main__":
 		exit(2)
 	print body
 	
+
 
