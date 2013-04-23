@@ -63,6 +63,9 @@ body {
 	color: #398ad4;
 	text-decoration: underline;
 }
+.content a.miss {
+	text-decoration: line-through;
+}
 
 .detail {
 	float: left;

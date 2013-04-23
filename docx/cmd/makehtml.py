@@ -39,8 +39,8 @@ def format_content(content, pkg):
 	varm = re_var_link.findall(content)
 	if varm:
 		for name, url in varm:
-			content = content.replace("#[%s](%s)" % (name, url), '<a href="%s">%s</a>' % (url, name))	
-		
+			content = content.replace("#[%s](%s)" % (name, url), '<a href="%s">%s</a>' % (url, name))
+
 	varm = re_var_d.findall(content)
 	if varm:
 		for var, name in varm:
@@ -58,7 +58,7 @@ def format_content(content, pkg):
 			if len(match) <= 0:
 				continue
 			content = content.replace("#" + var, '<a href="%s/%s.html">%s</a>' % (domain, match[0], var))
-	
+
 	return content
 
 def get_template(name):
@@ -90,7 +90,7 @@ class cls(object):
 template = cls(
 	func = get_template("function"),
 	type = get_template("type"),
-	map = get_template("map"),
+	map  = get_template("map"),
 	body = get_template("content_and_detail"),
 	base = get_template("base"),
 	map2 = get_template("map2"),
@@ -157,7 +157,7 @@ def make(datas, content):
 							linktype = link_type,
 						))
 						html = template.func(func)
-						save_to_base(dirpath + "/" + filename, content, html, func["name"])
+						save_to_base(dirpath + "/" + filename, content, html, "%s.%s" % (typedef["name"], func["name"]))
 
 				html = template.type(typedef)
 				save_to_base(dirpath + "/" + type_filename, content, html, typedef["name"])
@@ -168,7 +168,7 @@ def format_doci(result_keys, datas):
 	f = open("%s/template/content.doci" % sys.path[0])
 	content = f.read().split("\n")
 	f.close()
-	
+
 	result = []
 	path = []
 	content = filter(None, content)
@@ -179,13 +179,19 @@ def format_doci(result_keys, datas):
 			path.append(c)
 		else:
 			path[level] = c
-		
+
 		p = '/'.join(path[:level])
 		result.append(dict(path=p, p=p + '/' + c, name=c))
 
 	for i in result:
 		key = "%s/%s" % (i["path"], i["name"])
-		i["package"] = not key in datas
+		if key in datas:
+			i["package"] = datas[key] is None
+		elif key.startswith("/") or len([j for j in datas if j.startswith(key + "/")]) > 0:
+			i["package"] = True
+		else:
+			i["package"] = False
+			i["miss"] = True
 	childs = []
 	result_p = [x['p'] for x in result]
 	for c in result:
@@ -200,7 +206,7 @@ def format_doci(result_keys, datas):
 		if len(chs) <= 0:
 			continue
 		child_key[c['p']] = chs
-		
+
 	new_result = []
 	for r in result:
 		new_result.append(r)
@@ -210,7 +216,7 @@ def format_doci(result_keys, datas):
 				path = new_path[:index]
 				name = new_path[index + 1:]
 				new_result.append(dict(name=name, path=path, p=new_path, package=False))
-	
+
 	return template.map2(result=new_result, map=template.map2, domain=domain)
 
 def starts(path, lib):
@@ -225,87 +231,34 @@ def make_content(datas):
 	keys = []
 	for data in datas:
 		path = data["pkg_path"]
+		result[path] = None
 		if "func" in data:
 			for func in data["func"]:
 				p = "%s/%s" % (path, func["name"])
 				result[p] = func
 				keys.append(p)
-		
+
 		if "typedef" in data:
 			for typedef in data["typedef"]:
 				p = "%s/%s" % (path, typedef["name"])
 				result[p] = typedef
 				keys.append(p)
-							
+
 				if "struct" in typedef and "construct" in typedef["struct"]:
 					for construct in typedef["struct"]["construct"]:
 						p = "%s/%s/%s" % (path, typedef["name"], construct["name"])
 						result[p] = construct
-						keys.append(p)	
+						keys.append(p)
 
 				if "struct" in typedef and "func" in typedef["struct"]:
 					for func in typedef["struct"]["func"]:
 						p = "%s/%s/%s" % (path, typedef["name"], func["name"])
 						result[p] = func
-						keys.append(p)				
+						keys.append(p)
 
 
 	all_index = keys
 	return format_doci(keys, result)
-	mm = {}
-	lines = {}
-	for data in datas:
-		path = data["pkg_path"]
-		lib = getto(mm, path)
-		
-		if "func" in data:
-			for func in data["func"].values():
-				if not "doc" in func:
-					continue
-				lib["%s|%s%s/%s.html" % (func["name"], domain, path, func["name"])] = None
-
-		if "typedef" in data:
-			for typedef in data["typedef"]:
-				if not "doc" in typedef:
-					if "struct" in typedef and "func" in typedef["struct"]:
-						if len([i for i in typedef["struct"]["func"] if "doc" in i]) <= 0:
-							continue
-					else:
-						continue
-				mix_name = "%s|%s%s/%s.html" % (typedef["name"], domain, path, typedef["name"])
-				lib[mix_name] = None
-
-				if "struct" in typedef and "func" in typedef["struct"]:
-					for func in typedef["struct"]["func"]:
-						if not "doc" in func:
-							continue
-						if not lib[mix_name]:
-							lib[mix_name] = dict()
-						lib[mix_name]["%s|%s%s/%s_%s.html" % (func["name"],
-								domain, path, typedef["name"], func["name"])] = None
-
-	print mm
-	return template.map(key=mm.keys()[0], value=mm.values()[0], map = template.map, domain=domain)
-
-def getkey(path):
-	if path.find("/") > 0:
-		return path[: path.find("/")]
-	return path
-
-def getto(m, path):
-	r = "m['%s']" % "']['".join(path.split("/"))
-	try:
-		return eval(r)
-	except KeyError:
-		pass
-	mm = m
-	while len(path) > 1:
-		key = getkey(path)
-		if not key in mm:
-			mm[key] = dict()
-		mm = mm[key]
-		path = path[len(key)+1:]
-	return eval(r)
 
 if __name__ == "__main__":
 	if len(sys.argv) <= 1:
