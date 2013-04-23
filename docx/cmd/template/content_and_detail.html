@@ -1,8 +1,11 @@
 <html>
 <head>
 <meta charset="utf-8">
-<link rel="stylesheet" href="$domain/css/style.css?d">
+<link rel="stylesheet" href="$domain/css/style.css?dx">
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+var domain = "$domain";
+</script>
 </head>
 <body>
 	<h1 class="TopicTitle">$name</h1>
@@ -10,40 +13,13 @@
 	$content
 	</div>
 	<div class="detail">
+	<div class="togglebtn"><a href="javascript:toggle_content();"><img src="$domain/image/line-toggle.png" /></a></div>
 	$detail
 	</div>
-<script>
-var real = $(".detail").offset().left + $(".detail").width();
-var detail_left = $(".content").width();
-window.onresize = function() {
-	var width = -($(".detail").offset().left + $(".detail").width() - $("body").width());
-	var boundary_width = $(window).width();
-	$(".preview").fadeTo(0, 0.01 * (width-340));
-	if (width >= 340){
-		$(".preview").width(width - 50);
-	}
-	if (boundary_width < real + 50) {
-		$(".detail").width(boundary_width - detail_left - 110);
-	}
-}
-
-var page_name_start = location.href.lastIndexOf("/") + 1;
-page_name = location.href.substring(page_name_start, location.href.lastIndexOf("."));
-$("a[name=content_" + page_name + "]").css("color", "#da8439")
-function slide(t, obj) {
-	if (obj.css("display") == "none") {
-		$(t).children("img:first").attr("src", "$domain/image/tree-extended.png?")
-	} else {
-		$(t).children("img:first").attr("src", "$domain/image/tree-fold.png")
-	}
-	obj.slideToggle()
-}
-$("label[name=folder]").on("click", function() {
-	slide(this, $(this).next())
-})
-$("a[name=folder]").on("click", function() {
-	slide(this, $(this).next().next())
-})
-</script>
+	<div style="clear:both"></div>
+	<div class="footer">
+		Copyright © 2011 - 2013 Shanghai Qiniu Information Technologies Co., Ltd. All Rights Reserved.
+	</div>
+<script src="$domain/js/script.js"></script>
 </body>
 </html>

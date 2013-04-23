@@ -1,9 +1,12 @@
 <script>
 var tname = '$name';
 </script>
+<div>
 {if isset('doc')}
+<h3>说明</h3>
 {%echo(format(doc['beief'], pkg))}
 {end}
+</div>
 
 <h3>文法</h3>
 <div class="syntax_label">go</div>

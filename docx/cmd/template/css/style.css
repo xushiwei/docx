@@ -9,6 +9,11 @@ body {
 	padding-top: 20px;
 }
 
+.TopicTitle {
+	font-family: "Georgia";
+	color: #000;
+}
+
 .syntax_label {
 	position:absolute;
 	margin-top:4px;
@@ -67,11 +72,26 @@ body {
 	text-decoration: line-through;
 }
 
+.togglebtn {
+	position: fixed;
+	margin-left: -30px;
+	margin-top: 20px;
+}
+
+.footer {
+	font-size: 12px;
+	padding: 4px;
+	padding-bottom: 10px;
+	padding-top: 10px;
+	border-top:1px solid #b8b8b8;
+	color:#939393;
+	text-align: right;
+}
+
 .detail {
 	float: left;
 	min-width: 300px;
 	width: 640px;
-	max-width:640px;
 	padding-left: 20px;
 	padding-right: 20px;
 	border-left: 1px solid #b8b8b8;
@@ -79,6 +99,7 @@ body {
 	color: #454545;
 	font-size: 14px;
 	padding-bottom: 20px;
+	background: #fff;
 }
 .detail hr {
 	color: transparent;
