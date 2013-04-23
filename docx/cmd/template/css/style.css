@@ -63,7 +63,7 @@ body {
 	color: #398ad4;
 	text-decoration: underline;
 }
-.content a.miss {
+.content .miss {
 	text-decoration: line-through;
 }
 

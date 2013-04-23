@@ -30,8 +30,12 @@
 	{if len(result) > 0}
 	<a href="javascript:;" name="folder" class="folder"><img src="$domain/image/tree-extended.png?" align="absmiddle"></a>
 	{end}
-	{%ismiss = 'class="miss"' if 'miss' in value else ""}
-	<label><a href="$domain/$value['p'].html" $ismiss>$key</a></label>
+	{if 'miss' in value}
+		<label class="miss">$key</label>
+	{else}
+		<label><a href="$domain/$value['p']">$key</a></label>
+	{end}
+	
 {end}
 <blockquote>
 {if len(result) >= 1}
