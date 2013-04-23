@@ -6,4 +6,6 @@ title: 文本文件美化工具: txtbeautify
 
 使用方法：    
 
-       txtbeautify inputFile outputFile  
+       txtbeautify <FileName>
+
+注意：该工具会直接覆盖原文件。

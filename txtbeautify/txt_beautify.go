@@ -6,6 +6,7 @@ import (
     "fmt"
     "io"
     "log"
+    "errors"
     "os"
     "path/filepath"
     "unicode"
@@ -56,16 +57,10 @@ func isPunctuation(s string) bool {
 
 // -----------------------------------------------------------------------------------------
 
-func process(inFile io.Reader, outFile io.Writer, fn func(string) string) (err error) {
+func process(inFile io.Reader, fn func(string) string) (outBuf *bytes.Buffer, err error) {
 
+    outBuf = new(bytes.Buffer)
     reader := bufio.NewReader(inFile)
-    writer := bufio.NewWriter(outFile)
-
-    defer func() {
-        if err == nil {
-            err = writer.Flush()
-        }
-    }()
 
     for {
         var line string
@@ -73,18 +68,19 @@ func process(inFile io.Reader, outFile io.Writer, fn func(string) string) (err e
             if err == io.EOF {
                 break // io.EOF isn't really an error
             } else if err != nil {
-                return err // finish immediately for real errors
+                return outBuf, err // finish immediately for real errors
             }
         }
 
         beautyLine := fn(line)
 
-        if _, err = writer.WriteString(beautyLine); err != nil {
-            return err
+
+        if _, err = outBuf.WriteString(beautyLine); err != nil {
+            return outBuf, err
         }
     }
 
-    return nil
+    return outBuf, nil
 }
 
 func beautify(line string) string {
@@ -117,33 +113,36 @@ func beautify(line string) string {
     return buf.String()
 }
 
-func filenamesFromCommandLine() (inFilename, outFilename string, err error) {
+func save(out *os.File, result string) (err error) {
 
-    if len(os.Args) > 1 && (os.Args[1] == "-h" || os.Args[1] == "--help") || len(os.Args) < 3 {
-        err = fmt.Errorf("Usage: %s <inputFile> <outputFile>", filepath.Base(os.Args[0]))
-        return "", "", err
+    _, err = out.WriteString(result)
+    return err 
+}
+
+func filenamesFromCommandLine() (inFilename string, err error) {
+
+    if len(os.Args) > 1 && (os.Args[1] == "-h" || os.Args[1] == "--help") || len(os.Args) < 2 {
+        err = fmt.Errorf("Usage: %s <FileName>", filepath.Base(os.Args[0]))
+        return "", err
     }
 
-    inFilename, outFilename = os.Args[1], os.Args[2]
+    inFilename = os.Args[1]
     if inFilename == "" {
-        log.Fatal("Error : input file can not be empty.")
-    }
-    if outFilename == "" {
-        log.Fatal("Error : output file can not be empty.")
+        err = errors.New("Error : input file can not be empty.")
+        return "", err
     }
 
-    if inFilename != "" && inFilename == outFilename {
-        log.Fatal("Error : won't overwrite the input file.")
-    }
-
-    return inFilename, outFilename, nil
+    return inFilename, nil
 }
 
 //-------------------------------------------------------------------------------------------
 
 func main() {
 
-    inFilename, outFilename, err := filenamesFromCommandLine()
+    inFilename, err := filenamesFromCommandLine()
+    // overwrite the original file
+    outFilename := inFilename
+
     if err != nil {
         fmt.Println(err)
         return
@@ -155,16 +154,22 @@ func main() {
     )
 
     if inFile, err = os.Open(inFilename); err != nil {
-        log.Fatal(err)
+        log.Fatal("Fail to open input file, ", err)
     }
     defer inFile.Close()
 
+    result, err := process(inFile, beautify)
+    if err != nil {
+        log.Fatal("Fail to process the input file, ", err)
+    }
+
     if outFile, err = os.Create(outFilename); err != nil {
-        log.Fatal(err)
+        log.Fatal("Fail to create the output file, ", err)
     }
     defer outFile.Close()
 
-    if err = process(inFile, outFile, beautify); err != nil {
-        log.Fatal(err)
+    if err = save(outFile, result.String()); err != nil {
+        log.Fatal("Fail to save result, ", err)
     }
+    
 }
