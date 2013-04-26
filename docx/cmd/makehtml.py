@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @arg: qiniu/docx/docx/cmd/godir api
 #  @&&: open index.html
-#  @&&: open out/github.com/qiniu/api/rs/Client.html
+# @&&: open out/github.com/qiniu/api/rs/Client.html
 #  @&&: open out/github.com/qiniu/api/resumable/io/SetSettings.html
 import gojspp
 import sys
@@ -14,6 +14,7 @@ import shutil
 domain = "/api"
 # domain = "/Volumes/CheneyHome/qiniu/docx/docx/cmd/out"
 # domain = "Y:\qiniu\docx\docx\cmd\out/"
+# domain = r"\\Ubuntu\CheneyHome\qiniu\docx\docx\cmd\out"
 outdir = "%s/out" % sys.path[0]
 tpldir = "%s/template" % sys.path[0]
 

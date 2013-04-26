@@ -59,8 +59,8 @@ def decode_type(decl_type):
 	return decl_type
 
 def deal_func_doc_line(scheme, content, decl, ds):
-	if scheme == "beief":
-		ds["beief"] = ''.join(content).strip()
+	if scheme == "brief":
+		ds["brief"] = ''.join(content).strip()
 		return
 
 	if scheme in ["args", "return"]:
@@ -105,7 +105,7 @@ def deal_type_doc(decl):
 	decl["doc"] = deal_doc(deal_type_doc_line, docs, decl, r, "vars")
 
 def deal_type_doc_line(scheme, content, decl, ds):
-	if scheme == "beief":
+	if scheme == "brief":
 		ds[scheme] = ''.join(content).strip()
 		return
 
@@ -142,9 +142,9 @@ def deal_func_doc(decl):
 
 def deal_doc(deal_line_func, docs, decl, r, default_arg_name):
 	ds = dict(
-		beief = ""
+		brief = ""
 	)
-	current_scheme = "beief"
+	current_scheme = "brief"
 	current_content = [""]
 	for doc in docs:
 		doc = doc.split("\n")
@@ -164,7 +164,7 @@ def deal_doc(deal_line_func, docs, decl, r, default_arg_name):
 					d = d[1:]
 				current_content[len(current_content)-1] += d
 			else:
-				if current_scheme == 'beief':
+				if current_scheme == 'brief':
 					deal_line_func(current_scheme, current_content, decl, ds)
 					current_scheme = default_arg_name
 					current_content = [""]

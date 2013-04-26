@@ -4,7 +4,7 @@ var tname = '$name';
 <div>
 {if isset('doc')}
 <h3>说明</h3>
-{%echo(format(doc['beief'], pkg))}
+{%echo(format(doc['brief'], pkg))}
 {end}
 </div>
 
@@ -81,7 +81,7 @@ var tname = '$name';
 {end}
 {if isset('doc')}
 {for i in doc}
-	{if i == 'beief'}
+	{if i == 'brief'}
 		{%continue}
 	{end}
 	<h3>$i</h3>

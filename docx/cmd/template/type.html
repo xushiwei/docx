@@ -2,9 +2,9 @@
 var tname = '$name';
 </script>
 <div>
-{if isset('doc') and 'beief' in doc}
+{if isset('doc') and 'brief' in doc}
 <h3>说明</h3>
-{%echo(format(doc['beief'], pkg))}
+{%echo(format(doc['brief'], pkg))}
 {end}
 </div>
 <h3>结构</h3>
@@ -55,8 +55,8 @@ var tname = '$name';
 			<th>
 				<a href="$name/$construct['name'].html">$construct['name']</a>
 			</th> <td>
-			{if 'doc' in construct and 'beief' in construct['doc']}
-			{%echo(format(construct['doc']['beief'], pkg))}
+			{if 'doc' in construct and 'brief' in construct['doc']}
+			{%echo(format(construct['doc']['brief'], pkg))}
 			{end}
 			</td>
 		</tr>
@@ -72,8 +72,8 @@ var tname = '$name';
 			<th>
 				<a href="$name/$func['name'].html">$func['name']</a>
 			</th> <td>
-			{if 'doc' in func and 'beief' in func['doc']}
-			{%echo(format(func['doc']['beief'], pkg))}
+			{if 'doc' in func and 'brief' in func['doc']}
+			{%echo(format(func['doc']['brief'], pkg))}
 			{end}
 			</td>
 		</tr>
@@ -83,7 +83,7 @@ var tname = '$name';
 
 {if isset('doc')}
 {for d in doc}
-	{if d == 'beief'}
+	{if d == 'brief'}
 		{%continue}
 	{end}
 	<h3>$d</h3>
