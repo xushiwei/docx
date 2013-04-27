@@ -252,6 +252,11 @@ def format_go2json(filepath, json_output=False):
 					if "tag" in var:
 						display_name += var["tag"]
 					var["display_name"] = display_name.strip()
+					if "comment" in var:
+						var["doc"] = var["comment"].strip()
+						del var["comment"]
+						if var["doc"].startswith("//"):
+							var["doc"] = var["doc"][2:].strip()
 			if "typeref" in decl:
 				decl["typeref"] = decode_type(dict(typeref=decl["typeref"]))
 

@@ -138,7 +138,7 @@ inline void GolangParse(Log& log, Source source)
 		(
 			c_symbol()/meet(notBuiltinType)/tagName + !(typ/tagType) |
 			typ/tagType
-		) + !gr(structag/tagMemberTag);
+		) + !gr(structag/tagMemberTag) + !gr(cpp_comment<false>()/tagComment);
 
 	impl::Grammar strucline = member/tagMembers % ',';
 
