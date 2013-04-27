@@ -27,7 +27,7 @@ var tname = '$name';
 	{end}
 {end}
 {%ret_str=', '.join(ret_str)}
-{%ret_str = '(%s)' % ret_str if len(ret_str) > 0 else ''}
+{%ret_str = '(%s)' % ret_str if len(ret_str) > 0 and ret_str.find(' ') > 0 else ret_str}
 
 <h3>文法</h3>
 <div class="syntax_label">go</div>
@@ -40,13 +40,16 @@ var tname = '$name';
 {%max_length = 80}
 {if len(arg_string) > max_length}
 	{%new_arg = []}
-	{while len(arg_string) > max_length}
-		{%a=arg_string[:max_length].rfind(',')+1}
+	{%c = arg_string.find("%s(" % name) + len(name) + 1}
+	{%new_arg.append(arg_string[:c])}
+	{%arg_string=arg_string[c:]}
+	{while len(arg_string) > max_length-10}
+		{%a=arg_string[:max_length-10].rfind(',')+1}
 		{%new_arg.append(arg_string[:a])}
-		{%arg_string=arg_string[a:]}
+		{%arg_string=arg_string[a+1:]}
 	{end}
 	{%new_arg.append(arg_string)}
-	{%arg_string = ("<br>%s" % ("&nbsp;"*8)).join(new_arg)}
+	{%arg_string = ("<br>%s" % ("&nbsp;"*4)).join(new_arg)}
 {end}
 <code>$arg_string</code>
 </div>
