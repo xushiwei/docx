@@ -104,6 +104,8 @@ inline void GolangParse(Log& log, Source source)
 				//dom::NodeMark tagType("type");
 				dom::NodeMark tagTyperef("typeref");
 					dom::Mark tagNamespace("ns");
+					dom::NodeMark tagKey("key");
+					dom::NodeMark tagValue("value");
 					//dom::Mark tagName("name");
 				dom::NodeMark tagStruc("struct");
 					dom::NodeMark tagMembers("vars", true);
@@ -121,7 +123,8 @@ inline void GolangParse(Log& log, Source source)
 
 	impl::Grammar::Var typ;
 
-	impl::Grammar typref = !(gr(c_symbol()/tagNamespace) + '.') + c_symbol()/meet(notKeyword)/tagName;
+	impl::Grammar::Var typref;
+
 
 	impl::Grammar exptyp = !gr('*'/tagPointer) + c_symbol()/meet(notBuiltinType)/tagName;
 
@@ -146,6 +149,15 @@ inline void GolangParse(Log& log, Source source)
 
 	impl::Grammar import =
 		!gr(('.' | c_symbol())/tagName) + c_string()/tagPkg;
+
+	typref = 
+		(
+			("map"/tagName + gr('[') + typ/tagKey + gr(']') + typ/tagValue)|
+			(!(gr(c_symbol()/tagNamespace) + '.') + c_symbol()/meet(notKeyword)/tagName)|
+			"interface{}"/tagName|
+			"struct{}"/tagName|
+			("func"/tagName + gr("(") + !(arg/tagArgs % ',') + ')')
+		);
 
 	typ =
 		(
@@ -180,7 +192,6 @@ inline void GolangParse(Log& log, Source source)
 			paragraph() + eol() |
 			strict_eol()/tagNewline/tagDecls
 		)/doc;
-
 	json_print(alloc, log, doc);
 }
 
