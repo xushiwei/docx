@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # @arg: qiniu/docx/docx/cmd/godir api
 #  @&&: open index.html
-# @&&: open out/github.com/qiniu/api/rs/Client.html
 #  @&&: open out/github.com/qiniu/api/resumable/io/SetSettings.html
 import gojspp
 import sys

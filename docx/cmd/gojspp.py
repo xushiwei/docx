@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @arg: qiniu/docx/docx/cmd/godir image_info
 import os
 import json
 import sys
@@ -54,6 +53,27 @@ def decode_type(decl_type):
 	
 	if "typeref_name" in decl_type:
 		display_name += decl_type["typeref_name"]
+	if decl_type["typeref_name"] == "func":
+		args_names = []
+		no_types = []
+		for a in decl_type["typeref_args"]:
+			if "type" in a:
+				if len(no_types) > 0:
+					for aa in no_types:
+						aa['type'] = a['type'].copy()
+					no_types = []
+				continue
+			no_types.append(a)
+		for a in decl_type["typeref_args"]:
+			t = decode_type(a['type'])
+			args_names.append("%s %s" % (a['name'], t['display_name']))
+		display_name = "func(%s)" % (', '.join(args_names))
+	elif decl_type["typeref_name"] == "map":
+		decl_type['typeref_value'] = decode_type(decl_type['typeref_value'])
+		decl_type['typeref_key'] = decode_type(decl_type['typeref_key'])
+		display_name = "map[%s] %s" % (decl_type['typeref_key']['display_name'],
+				decl_type['typeref_value']['display_name'])
+	
 	decl_type["display_name"] = display_name
 		
 	return decl_type
@@ -232,6 +252,8 @@ def format_go2json(filepath, json_output=False):
 					if "tag" in var:
 						display_name += var["tag"]
 					var["display_name"] = display_name.strip()
+			if "typeref" in decl:
+				decl["typeref"] = decode_type(dict(typeref=decl["typeref"]))
 
 			deal_type_doc(decl)
 

@@ -9,17 +9,20 @@ var tname = '$name';
 </div>
 <h3>结构</h3>
 <div class="syntax_label">go</div>
+<div class="syntax_pre">
+<code>type $name
 {if isset('typeref')}
-<pre class="syntax_pre"><code>type $name $typeref['name']
+	$typeref['display_name']
 {else}
-<pre class="syntax_pre"><code>type $name struct {
-{if isset('struct') and 'vars' in struct}
-{for var in struct['vars']}
-	\t$var['display_name']
+	struct {<br>
+	{if isset('struct') and 'vars' in struct}
+		{for var in struct['vars']}
+		&nbsp;&nbsp;&nbsp;&nbsp;$var['display_name']<br>
+	{end}
+	{end}
+	}
 {end}
-{end}
-}
-</code></pre>
+</code></div>
 
 {if isset('struct') and 'vars' in struct}
 	<h3>字段</h3>
