@@ -7,7 +7,7 @@ import re
 
 re_md_gist = re.compile(r"@gist\(([^\)]+)\)")
 re_strip = re.compile(r"^\n*(.*)\n\t*$", re.S)
-re_indent = re.compile(r"^(\t*)\w")
+re_indent = re.compile(r"^(\t*)[^\t\s\n\r]")
 line_start = r"(?:^|\n)\s*"
 re_gist_comment = dict(
 	c = dict(
@@ -117,7 +117,10 @@ if __name__ == "__main__":
 	for i in result:
 		key = "%s/%s" % (rpath, i)
 		if key in gists:
-			s = re_md_gist.search(body).span()[0]
+			match_results = re_md_gist.search(body)
+			if match_results is None:
+				continue
+			s = match_results.span()[0]
 			s = body[body[s-50: s].rfind("\n")+s-50+1: s]
 			content = (("\n%s" % s).join(gists[key])).strip()
 			content = content.replace("\\", "\\\\")
@@ -132,6 +135,3 @@ if __name__ == "__main__":
 			sys.stderr.write("%s: %s\n" % (i+1, error))
 		exit(2)
 	print body
-	
-
-
