@@ -2,23 +2,27 @@
 var tname = '$name';
 </script>
 <div>
-{if isset('doc') and 'beief' in doc}
-{%echo(format(doc['beief']))}
+{if isset('doc') and 'brief' in doc}
+<h3>说明</h3>
+{%echo(format(doc['brief'], pkg))}
 {end}
 </div>
 <h3>结构</h3>
 <div class="syntax_label">go</div>
+<div class="syntax_pre">
+<code>type $name
 {if isset('typeref')}
-<pre class="syntax_pre"><code>type $name $typeref['name']
+	$typeref['display_name']
 {else}
-<pre class="syntax_pre"><code>type $name struct {
-{if isset('struct') and 'vars' in struct}
-{for var in struct['vars']}
-	\t$var['display_name']
+	struct {<br>
+	{if isset('struct') and 'vars' in struct}
+		{for var in struct['vars']}
+		&nbsp;&nbsp;&nbsp;&nbsp;$var['display_name']<br>
+	{end}
+	{end}
+	}
 {end}
-{end}
-}
-</code></pre>
+</code></div>
 
 {if isset('struct') and 'vars' in struct}
 	<h3>字段</h3>
@@ -29,14 +33,14 @@ var tname = '$name';
 				<div class="type_label">
 				类型:
 				<label class="var_type">
-				$var['type']['display_name']
+				{%echo(linktype(var['type']['display_name'], pkg))}
 				</label>
 				</div>
 
 				<blockquote>
 				{if 'doc' in var}
 				<div>
-				{%echo(format(var["doc"]))}
+				{%echo(format(var["doc"], pkg))}
 				</div>
 				{end}
 				</blockquote>
@@ -46,16 +50,33 @@ var tname = '$name';
 		</li>
 	{end}
 {end}
+{if isset('struct') and 'construct' in struct}
+	<h3>构造函数</h3>
+	<table class="methods">
+	{for construct in struct['construct']}
+		<tr>
+			<th>
+				<a href="$name/$construct['name'].html">$construct['name']</a>
+			</th> <td>
+			{if 'doc' in construct and 'brief' in construct['doc']}
+			{%echo(format(construct['doc']['brief'], pkg))}
+			{end}
+			</td>
+		</tr>
+	{end}
+	</table>
+
+{end}
 {if isset('struct') and 'func' in struct}
 	<h3>方法</h3>
 	<table class="methods">
-	{for func in struct['func'].values()}
+	{for func in struct['func']}
 		<tr>
 			<th>
-				<a href="$name_$func['name'].html">$func['name']</a>
+				<a href="$name/$func['name'].html">$func['name']</a>
 			</th> <td>
-			{if 'doc' in func and 'beief' in func['doc']}
-			{%echo(format(func['doc']['beief']))}
+			{if 'doc' in func and 'brief' in func['doc']}
+			{%echo(format(func['doc']['brief'], pkg))}
 			{end}
 			</td>
 		</tr>
@@ -65,12 +86,12 @@ var tname = '$name';
 
 {if isset('doc')}
 {for d in doc}
-	{if d == 'beief'}
+	{if d == 'brief'}
 		{%continue}
 	{end}
 	<h3>$d</h3>
 	<blockquote>
-	{%echo(format(doc[d]))}
+	{%echo(format(doc[d], pkg))}
 	</blockquote>
 {end}
 {end}

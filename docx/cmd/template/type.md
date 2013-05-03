@@ -1,7 +1,7 @@
 ## $name
 {if isset('doc')}
 
-\t$doc['beief']
+\t$doc['brief']
 
 {end}
 

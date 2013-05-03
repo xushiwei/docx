@@ -8,7 +8,7 @@
 {%arg_string=', '.join(arg_string)}
 {if isset('doc')}
 
-\t$doc['beief']
+\t$doc['brief']
 
 {end}
 ### 代码

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @arg: qiniu/docx/docx/cmd/godir api
 import os
 import json
 import sys
 import re
 import errno
+import operator
 
 re_kv = re.compile(r"^(\w+):\s*([^$]*)")
 re_cmt = re.compile(r"^(\s*\*/|/\*\*+|\s*\*|//\s*)")
@@ -28,7 +28,7 @@ def decode_type(decl_type):
 	if "ptr" in decl_type:
 		ptr = True
 		decl_type = decl_type["type"]
-	
+
 	array = None
 	if "array" in decl_type and "type" in decl_type:
 		array = decl_type["array"]
@@ -51,17 +51,41 @@ def decode_type(decl_type):
 	if 'typeref_ns' in decl_type:
 		display_name += "%s." % decl_type["typeref_ns"]
 	
-	display_name += decl_type["typeref_name"]
+	if "typeref_name" in decl_type:
+		display_name += decl_type["typeref_name"]
+	if decl_type["typeref_name"] == "func":
+		args_names = []
+		no_types = []
+		for a in decl_type["typeref_args"]:
+			if "type" in a:
+				if len(no_types) > 0:
+					for aa in no_types:
+						aa['type'] = a['type'].copy()
+					no_types = []
+				continue
+			no_types.append(a)
+		for a in decl_type["typeref_args"]:
+			t = decode_type(a['type'])
+			args_names.append("%s %s" % (a['name'], t['display_name']))
+		display_name = "func(%s)" % (', '.join(args_names))
+	elif decl_type["typeref_name"] == "map":
+		decl_type['typeref_value'] = decode_type(decl_type['typeref_value'])
+		decl_type['typeref_key'] = decode_type(decl_type['typeref_key'])
+		display_name = "map[%s] %s" % (decl_type['typeref_key']['display_name'],
+				decl_type['typeref_value']['display_name'])
+	
 	decl_type["display_name"] = display_name
 		
 	return decl_type
 
 def deal_func_doc_line(scheme, content, decl, ds):
-	if scheme == "beief":
-		ds["beief"] = ''.join(content).strip()
+	if scheme == "brief":
+		ds["brief"] = ''.join(content).strip()
 		return
 
-	if scheme in ["args", "returns"]:
+	if scheme in ["args", "return"]:
+		if scheme == "return":
+			scheme = "returns"
 		content = filter(None, content)
 		for arg_string in content:
 			kv = re_kv.findall(arg_string)
@@ -74,7 +98,7 @@ def deal_func_doc_line(scheme, content, decl, ds):
 						arg["doc"] = kv[0][1]
 						break
 			else:
-				print arg_string
+				print arg_string.encode('utf-8', 'ignore')
 		return
 
 	ds[scheme] = content
@@ -98,10 +122,10 @@ def deal_type_doc(decl):
 		fields = [i["name"] for i in decl["struct"]["vars"]]
 	r = make_names_match_regex(fields)
 
-	decl["doc"] = deal_doc(deal_type_doc_line, docs, decl, r)
+	decl["doc"] = deal_doc(deal_type_doc_line, docs, decl, r, "vars")
 
 def deal_type_doc_line(scheme, content, decl, ds):
-	if scheme == "beief":
+	if scheme == "brief":
 		ds[scheme] = ''.join(content).strip()
 		return
 
@@ -134,13 +158,13 @@ def deal_func_doc(decl):
 
 	r = make_names_match_regex(args)
 
-	decl["doc"] = deal_doc(deal_func_doc_line, docs, decl, r)
+	decl["doc"] = deal_doc(deal_func_doc_line, docs, decl, r, "args")
 
-def deal_doc(deal_line_func, docs, decl, r):
+def deal_doc(deal_line_func, docs, decl, r, default_arg_name):
 	ds = dict(
-		beief = ""
+		brief = ""
 	)
-	current_scheme = "beief"
+	current_scheme = "brief"
 	current_content = [""]
 	for doc in docs:
 		doc = doc.split("\n")
@@ -160,6 +184,10 @@ def deal_doc(deal_line_func, docs, decl, r):
 					d = d[1:]
 				current_content[len(current_content)-1] += d
 			else:
+				if current_scheme == 'brief':
+					deal_line_func(current_scheme, current_content, decl, ds)
+					current_scheme = default_arg_name
+					current_content = [""]
 				current_content.append(d)
 
 	deal_line_func(current_scheme, current_content, decl, ds)
@@ -193,11 +221,11 @@ def format_go2json(filepath, json_output=False):
 			decl['doc'] = comment
 			comment = []
 
-		if key not in result:
-			result[key] = dict()
 		sub_key = None
-
 		if key == "import":
+			if key not in result:
+				result[key] = dict()
+			
 			pkg = decl["pkg"][1: -1]
 			sub_key = pkg
 
@@ -206,8 +234,13 @@ def format_go2json(filepath, json_output=False):
 			elif pkg.find("/") >= 0:
 				sub_key = pkg[pkg.rfind("/")+1: ]
 			decl = pkg
+			result[key][sub_key] = decl
+			continue
 
-		elif key == "typedef":
+		if key not in result:
+			result[key] = list()
+
+		if key == "typedef":
 			sub_key = decl["name"]
 			if "struct" in decl and "vars" in decl["struct"]:
 				for var in decl["struct"]["vars"]:
@@ -219,6 +252,13 @@ def format_go2json(filepath, json_output=False):
 					if "tag" in var:
 						display_name += var["tag"]
 					var["display_name"] = display_name.strip()
+					if "comment" in var:
+						var["doc"] = var["comment"].strip()
+						del var["comment"]
+						if var["doc"].startswith("//"):
+							var["doc"] = var["doc"][2:].strip()
+			if "typeref" in decl:
+				decl["typeref"] = decode_type(dict(typeref=decl["typeref"]))
 
 			deal_type_doc(decl)
 
@@ -243,16 +283,19 @@ def format_go2json(filepath, json_output=False):
 				# struct method
 				struct_name = decl["recvr"]["type"]["name"]
 				if "typedef" not in result:
-					result["typedef"] = dict()
-				if struct_name not in result["typedef"]:
-					result["typedef"][struct_name] = dict()
-				struct_dict = result["typedef"][struct_name]
+					result["typedef"] = list()
+				if not in_name(struct_name, result["typedef"]):
+					struct_dict = dict(name=struct_name)
+					result["typedef"].append(struct_dict)
+				else:
+					struct_dict = in_name(struct_name, result["typedef"])
+
 				if not "struct" in struct_dict:
 					struct_dict["struct"] = dict()
 				struct = struct_dict["struct"]
 				if not "func" in struct:
-					struct["func"] = dict()
-				struct["func"][decl["name"]] = decl
+					struct["func"] = list()
+				struct["func"].append(decl)
 				if "name" not in struct_dict:
 					struct_dict["name"] = struct_name
 				continue
@@ -264,28 +307,32 @@ def format_go2json(filepath, json_output=False):
 					struct_name = re.sub(r"\*", "", struct_name)
 					if "typedef" not in result:
 						continue
-					if not struct_name in result["typedef"]:
+					if not in_name(struct_name, result["typedef"]):
 						continue
 					is_added = True
-					struct_dict = result["typedef"][struct_name]
+					struct_dict = in_name(struct_name, result["typedef"])
 					if not "struct" in struct_dict:
 						struct_dict["struct"] = dict()
 					struct = struct_dict["struct"]
 					
-					if not "func" in struct:
-						struct["func"] = dict()
-					struct["func"][decl["name"]] = decl
+					if not "construct" in struct:
+						struct["construct"] = list()
+					struct["construct"].append(decl)
 					break
 				if is_added:
 					continue
-					
-					
-					
 
-		result[key][sub_key] = decl
+		result[key].append(decl)
+	
 	if not json_output:
 		return result
 	return json.dumps(result)
+
+def in_name(name, array):
+	for a in array:
+		if a['name'] == name:
+			return a
+	return None
 
 def walk_pathes(filepath, filter_regex):
 	pathes = []
@@ -322,7 +369,7 @@ def ensure_filepath(filepath):
 		filepath = "%s/src" % filepath
 	return filepath
 
-def do(filepath, filter_regex, json_output=False):
+def do(filepath, filter_regex=None, json_output=False):
 	filepath = ensure_filepath(filepath)
 	if filepath.endswith(".go"):
 		return format_go2json(filepath, json_output)
@@ -339,11 +386,13 @@ def do(filepath, filter_regex, json_output=False):
 		data = format_go2json(path)
 		data["pkg_path"] = folder
 		datas.append(data)
-	return datas
+	if not json_output:
+		return datas
+	return json.dumps(datas)
 
 if __name__ == "__main__":
 	if len(sys.argv) <= 1:
 		exit("miss file")
 
 	filter_regex = sys.argv[2] if len(sys.argv) >= 3 else None
-	do(sys.argv[1], filter_regex)
+	print do(sys.argv[1], filter_regex, True)

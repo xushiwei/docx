@@ -1,12 +1,12 @@
 <script>
 var tname = '$name';
 </script>
+<div>
 {if isset('doc')}
-{%echo(format(doc['beief']))}
+<h3>说明</h3>
+{%echo(format(doc['brief'], pkg))}
 {end}
-
-<h3>文法</h3>
-<div class="syntax_label">go</div>
+</div>
 
 {%arg_string=[]}
 {if isset('args')}
@@ -27,15 +27,32 @@ var tname = '$name';
 	{end}
 {end}
 {%ret_str=', '.join(ret_str)}
-{%ret_str = '(%s)' % ret_str if len(ret_str) > 0 else ''}
+{%ret_str = '(%s)' % ret_str if len(ret_str) > 0 and ret_str.find(' ') > 0 else ret_str}
 
-<pre class="syntax_pre">
+<h3>文法</h3>
+<div class="syntax_label">go</div>
+<div class="syntax_pre">
 {if isset('recvr')}
-<code>func ($recvr['name'] $recvr['type']['name']) $name($arg_string) $ret_str {}</code>
+{%arg_string='func (%s %s) %s(%s) %s' % (recvr['name'], recvr['type']['name'], name, arg_string, ret_str)}
 {else}
-<code>func $name($arg_string) $ret_str {}</code>
+{%arg_string='func %s(%s) %s' % (name, arg_string, ret_str)}
 {end}
-</pre>
+{%max_length = 80}
+{if len(arg_string) > max_length}
+	{%new_arg = []}
+	{%c = arg_string.find("%s(" % name) + len(name) + 1}
+	{%new_arg.append(arg_string[:c])}
+	{%arg_string=arg_string[c:]}
+	{while len(arg_string) > max_length-10}
+		{%a=arg_string[:max_length-10].rfind(',')+1}
+		{%new_arg.append(arg_string[:a])}
+		{%arg_string=arg_string[a+1:]}
+	{end}
+	{%new_arg.append(arg_string)}
+	{%arg_string = ("<br>%s" % ("&nbsp;"*4)).join(new_arg)}
+{end}
+<code>$arg_string</code>
+</div>
 
 
 {if isset('args')}
@@ -45,13 +62,13 @@ var tname = '$name';
 		<div class="type_label">
 			类型:
 			<label class="var_type">
-			$i['type']['display_name']
+			{%echo(linktype(i['type']['display_name'], pkg))}
 			</label>
 		</div>
 		<blockquote>
 			{if 'doc' in i}
 			<div>
-			{%echo(format(i["doc"]))}
+			{%echo(format(i["doc"], pkg))}
 			</div>
 			{end}
 		</blockquote>
@@ -66,24 +83,24 @@ var tname = '$name';
 		<div class="type_label">
 			类型:
 			<label class="var_type">
-			$i['type']['display_name']
+			{%echo(linktype(i['type']['display_name'], pkg))}
 			</label>
 		</div>
 		<blockquote>
 			{if 'doc' in i}
-			{%echo(format(i["doc"]))}
+			{%echo(format(i["doc"], pkg))}
 			{end}
 		</blockquote>
 	{end}
 {end}
 {if isset('doc')}
 {for i in doc}
-	{if i == 'beief'}
+	{if i == 'brief'}
 		{%continue}
 	{end}
 	<h3>$i</h3>
 	<blockquote>
-	{%echo(format(doc[i]))}
+	{%echo(format(doc[i], pkg))}
 	</blockquote>
 {end}
 {end}

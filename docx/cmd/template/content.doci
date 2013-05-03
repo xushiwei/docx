@@ -1,0 +1,14 @@
+github.com/qiniu/api
+	fop
+		Exif
+		ImageView
+		ImageInfo
+	rs
+		PutPolicy
+		GetPolicy
+		Client
+	resumable/io
+		Put
+	io
+		Put
+		GetUrl

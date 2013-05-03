@@ -34,12 +34,17 @@ class Tpl(object):
 	def sandboxes(self, _html_py, _args):
 		vars().update(_args)
 		_html = []
-		isset, echo, _u = self.isset(_args), _html.append, self.u()
+		isset, echo, _u = self.isset(_args), self.echo(_html), self.u()
 		tpl = self.template(_html)
 		if _args.get("debug", False):
 			print _html_py
 		exec(_html_py)
 		return ("\n".join(_html)).encode("utf-8", "ignore")
+	
+	def echo(self, _html):
+		def wrapper(t):
+			return _html.append(self.u()(t))
+		return wrapper
 
 	def isset(self, args):
 		return lambda x: x in args
