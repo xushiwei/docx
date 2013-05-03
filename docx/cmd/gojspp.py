@@ -28,7 +28,7 @@ def decode_type(decl_type):
 	if "ptr" in decl_type:
 		ptr = True
 		decl_type = decl_type["type"]
-	
+
 	array = None
 	if "array" in decl_type and "type" in decl_type:
 		array = decl_type["array"]
@@ -369,7 +369,7 @@ def ensure_filepath(filepath):
 		filepath = "%s/src" % filepath
 	return filepath
 
-def do(filepath, filter_regex, json_output=False):
+def do(filepath, filter_regex=None, json_output=False):
 	filepath = ensure_filepath(filepath)
 	if filepath.endswith(".go"):
 		return format_go2json(filepath, json_output)
@@ -395,4 +395,4 @@ if __name__ == "__main__":
 		exit("miss file")
 
 	filter_regex = sys.argv[2] if len(sys.argv) >= 3 else None
-	do(sys.argv[1], filter_regex)
+	print do(sys.argv[1], filter_regex, True)

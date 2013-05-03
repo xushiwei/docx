@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # @arg: qiniu/docx/docx/cmd/godir api
 #  @&&: open index.html
+# @&&: open out/github.com/qiniu/api/fop/ExifValType.html
 #  @&&: open out/github.com/qiniu/api/resumable/io/SetSettings.html
 import gojspp
 import sys
@@ -11,7 +12,7 @@ import os
 import shutil
 
 domain = "/api"
-# domain = "/Volumes/CheneyHome/qiniu/docx/docx/cmd/out"
+domain = "/Volumes/CheneyHome/qiniu/docx/docx/cmd/out"
 # domain = "Y:\qiniu\docx\docx\cmd\out/"
 # domain = r"\\Ubuntu\CheneyHome\qiniu\docx\docx\cmd\out"
 outdir = "%s/out" % sys.path[0]
@@ -225,8 +226,7 @@ def starts(path, lib):
 			return True
 	return False
 
-def make_content(datas):
-	global all_index
+def make_tree(datas):
 	result = {}
 	keys = []
 	for data in datas:
@@ -255,10 +255,12 @@ def make_content(datas):
 						p = "%s/%s/%s" % (path, typedef["name"], func["name"])
 						result[p] = func
 						keys.append(p)
+	return keys, result
 
-
-	all_index = keys
-	return format_doci(keys, result)
+def make_content(datas):
+	global all_index
+	all_index, results = make_tree(datas)
+	return format_doci(all_index, results)
 
 if __name__ == "__main__":
 	if len(sys.argv) <= 1:
