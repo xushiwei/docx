@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @arg: /Users/cheney/Projects/qiniu/new-sdk/c-sdk/docs/README.gist.md > /Users/cheney/Projects/qiniu/new-sdk/c-sdk/docs/README.md
-# @&&: open /Users/cheney/Projects/qiniu/new-sdk/c-sdk/docs/README.md
 
 import sys
 import os
