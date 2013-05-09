@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# @arg: /Users/cheney/Projects/qiniu/new-sdk/c-sdk/docs/README.gist.md > /Users/cheney/Projects/qiniu/new-sdk/c-sdk/docs/README.md
+# @&&: open /Users/cheney/Projects/qiniu/new-sdk/c-sdk/docs/README.md
 
 import sys
 import os
@@ -11,19 +13,19 @@ re_indent = re.compile(r"^(\t*)[^\t\s\n\r]")
 line_start = r"(?:^|\n)\s*"
 re_gist_comment = dict(
 	c = dict(
-		start = re.compile(r"%s\/\*\s*@gist\s+(\w+)\s*\*/.*?\n+" % line_start),
+		start = re.compile(r"%s\/\*\s*@gist\s+([\w\-_]+)\s*\*/.*?\n+" % line_start),
 		end = re.compile(r"%s\/\*\s*@endgist\s*\*/" % line_start),
 	),
 	bash = dict(
-		start = re.compile(r"%s#\s*@gist\s+(\w+).*?\n+" % line_start),
+		start = re.compile(r"%s#\s*@gist\s+([\w\-_]+).*?\n+" % line_start),
 		end = re.compile(r"%s#\s*@endgist" % line_start),
 	),
 	cpp = dict(
-		start = re.compile(r"%s//\s*@gist\s+(\w+).*?\n+" % line_start),
+		start = re.compile(r"%s//\s*@gist\s+([\w\-_]+).*?\n+" % line_start),
 		end = re.compile(r"%s//\s*@endgist" % line_start)
 	),
 	html = dict(
-		start = re.compile(r"%s<!-- @gist\s+(\w+?) -->.*?\n+" % line_start),
+		start = re.compile(r"%s<!-- @gist\s+([\w\-_]+?) -->.*?\n+" % line_start),
 		end = re.compile(r"%s<!-- @endgist -->" % line_start),
 	),
 )
@@ -132,6 +134,6 @@ if __name__ == "__main__":
 	if len(errors) > 0:
 		sys.stderr.write("error: No Such File or Author\n")
 		for i, error in enumerate(errors):
-			sys.stderr.write("%s: %s\n" % (i+1, error))
+			sys.stderr.write("%s: '%s'\n" % (i+1, error))
 		exit(2)
 	print body
