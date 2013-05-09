@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# @arg: /Users/cheney/Projects/qiniu/new-sdk/c-sdk/docs/README.gist.md > /Users/cheney/Projects/qiniu/new-sdk/c-sdk/docs/README.md
+# @&&: open /Users/cheney/Projects/qiniu/new-sdk/c-sdk/docs/README.md
 
 import sys
 import os
@@ -95,36 +97,37 @@ if __name__ == "__main__":
 		exit(2)
 		
 	rpath = dirname(sys.argv[1])
-	result = []
-	files = []
+	body_gist_ref = []
+	ref_files = []
 	for i in re_md_gist.findall(body):
 		file_path = i
 		if i.find("#") > 0:
 			file_path = file_path.split("#")[0]
-		files.append("%s/%s" % (rpath, file_path))
-		result.append(i)
-	files = list(set(files))
-	gists = {}
-	for f in files:
+		ref_files.append("%s/%s" % (rpath, file_path))
+		body_gist_ref.append(i)
+	ref_files = list(set(ref_files))
+
+	match_gists = {}
+	for f in ref_files:
 		blocks = get_gist_block(f)
 		for block_key in blocks:
 			key = "%s#%s" % (f, block_key)
 			if len(block_key) == 0:
 				key = "%s%s" % (f, block_key)
-			gists[key] = blocks[block_key]
+			match_gists[key] = blocks[block_key]
 	
 	errors = []
-	for i in result:
+	for i in body_gist_ref:
 		key = "%s/%s" % (rpath, i)
-		if key in gists:
+		if key in match_gists:
 			match_results = re_md_gist.search(body)
 			if match_results is None:
 				continue
 			s = match_results.span()[0]
 			s = body[body[s-50: s].rfind("\n")+s-50+1: s]
-			content = (("\n%s" % s).join(gists[key])).strip()
+			content = (("\n%s" % s).join(match_gists[key])).strip()
 			content = content.replace("\\", "\\\\")
-			
+
 			body = re.sub(r"@gist\s*\(%s\)" % i, content, body)
 		else:
 			errors.append(i)
