@@ -1,0 +1,64 @@
+{%package = result[0].get('package', False)}
+{%key = result[0]['name']}
+{%value = result[0]}
+{%result = result[1:]}
+{for v in result}
+	{%v['path'] = v['path'][len(key):]}
+	{if len(v['path']) > 0}
+		{%v['path'] = v['path'][1: ]}
+	{end}
+{end}
+{while len(result) > 0 and len([i for i in result if len(i['path']) == 0]) == 1}
+{if len(result) > 0 and not result[0]['package']}
+	{%break}
+{end}
+{%key = "%s &raquo; %s" % (key, result[0]['name'])}
+{for v in result}
+	{%v['path'] = v['path'][len(result[0]['name']):]}
+	{if len(v['path']) > 0}
+		{%v['path'] = v['path'][1: ]}
+	{end}
+{end}
+{%value = result[0]}
+{%result = result[1:]}
+{end}
+{if package}
+	<label class="folder" name="folder"><img src="$domain/image/tree-extended.png?" align="absmiddle">
+	{%echo(key.replace("/", " &raquo; "))}
+	</label>
+{else}
+	{if len(result) > 0}
+	<a href="javascript:;" name="folder" class="folder"><img src="$domain/image/tree-extended.png?" align="absmiddle"></a>
+	{end}
+	{if 'miss' in value}
+		<label class="miss">$key</label>
+	{else}
+		<label><a href="$domain/$value['p'].html">$key</a></label>
+	{end}
+	
+{end}
+<blockquote>
+{if len(result) >= 1}
+	{%keys = []}
+	{%index = 0}
+	{%lastname=""}
+	{for i, ret in enumerate(result)}
+		{if len(ret['path']) == 0}
+			{if ret['path'] == ""}
+				{if not lastname == ""}
+					{%keys.append((lastname, result[index: i]))}
+				{end}
+			{else}
+				{%keys[len(keys)-1] = ()}
+			{end}
+			{%index = i}
+			{%lastname = ret['name']}
+		{end}
+	{end}
+	{%keys.append((lastname, result[index:]))}
+	{for i in keys}
+		{%tpl(map, result=i[1], map=map, domain=domain)}
+	{end}
+{end}
+</blockquote>
+<div style="clear: both"></div>

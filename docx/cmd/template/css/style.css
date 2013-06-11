@@ -9,9 +9,14 @@ body {
 	padding-top: 20px;
 }
 
+.TopicTitle {
+	font-family: "Georgia";
+	color: #000;
+}
+
 .syntax_label {
 	position:absolute;
-	margin-top:4px;
+	margin-top:-8px;
 	margin-left:10px;
 	background:#fff;
 	padding-left:4px;
@@ -20,7 +25,7 @@ body {
 
 .syntax_pre {
 	border: 1px solid #939393;
-	padding:20px;
+	padding: 16px;
 	overflow-x: auto;
 }
 
@@ -63,18 +68,38 @@ body {
 	color: #398ad4;
 	text-decoration: underline;
 }
+.content .miss {
+	text-decoration: line-through;
+}
+
+.togglebtn {
+	position: fixed;
+	margin-left: -30px;
+	margin-top: 20px;
+}
+
+.footer {
+	font-size: 12px;
+	padding: 4px;
+	padding-bottom: 10px;
+	padding-top: 10px;
+	border-top:1px solid #b8b8b8;
+	color:#939393;
+	text-align: right;
+}
 
 .detail {
 	float: left;
 	min-width: 300px;
-	width: 640px;
-	max-width:640px;
+	width: 680px;
 	padding-left: 20px;
 	padding-right: 20px;
 	border-left: 1px solid #b8b8b8;
 	margin-left: -1px;
 	color: #454545;
 	font-size: 14px;
+	padding-bottom: 20px;
+	background: #fff;
 }
 .detail hr {
 	color: transparent;
