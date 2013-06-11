@@ -7,23 +7,23 @@ import re
 
 re_md_gist = re.compile(r"@gist\(([^\)]+)\)")
 re_strip = re.compile(r"^\n*(.*)\n\t*$", re.S)
-re_indent = re.compile(r"^(\t*)\w")
+re_indent = re.compile(r"^(\t*)[^\t\s\n\r]")
 line_start = r"(?:^|\n)\s*"
 re_gist_comment = dict(
 	c = dict(
-		start = re.compile(r"%s\/\*\s*@gist\s+(\w+)\s*\*/.*?\n+" % line_start),
+		start = re.compile(r"%s\/\*\s*@gist\s+([\w\-_]+)\s*\*/.*?\n+" % line_start),
 		end = re.compile(r"%s\/\*\s*@endgist\s*\*/" % line_start),
 	),
 	bash = dict(
-		start = re.compile(r"%s#\s*@gist\s+(\w+).*?\n+" % line_start),
+		start = re.compile(r"%s#\s*@gist\s+([\w\-_]+).*?\n+" % line_start),
 		end = re.compile(r"%s#\s*@endgist" % line_start),
 	),
 	cpp = dict(
-		start = re.compile(r"%s//\s*@gist\s+(\w+).*?\n+" % line_start),
+		start = re.compile(r"%s//\s*@gist\s+([\w\-_]+).*?\n+" % line_start),
 		end = re.compile(r"%s//\s*@endgist" % line_start)
 	),
 	html = dict(
-		start = re.compile(r"%s<!-- @gist\s+(\w+?) -->.*?\n+" % line_start),
+		start = re.compile(r"%s<!-- @gist\s+([\w\-_]+?) -->.*?\n+" % line_start),
 		end = re.compile(r"%s<!-- @endgist -->" % line_start),
 	),
 )
@@ -95,33 +95,37 @@ if __name__ == "__main__":
 		exit(2)
 		
 	rpath = dirname(sys.argv[1])
-	result = []
-	files = []
+	body_gist_ref = []
+	ref_files = []
 	for i in re_md_gist.findall(body):
 		file_path = i
 		if i.find("#") > 0:
 			file_path = file_path.split("#")[0]
-		files.append("%s/%s" % (rpath, file_path))
-		result.append(i)
-	files = list(set(files))
-	gists = {}
-	for f in files:
+		ref_files.append("%s/%s" % (rpath, file_path))
+		body_gist_ref.append(i)
+	ref_files = list(set(ref_files))
+
+	match_gists = {}
+	for f in ref_files:
 		blocks = get_gist_block(f)
 		for block_key in blocks:
 			key = "%s#%s" % (f, block_key)
 			if len(block_key) == 0:
 				key = "%s%s" % (f, block_key)
-			gists[key] = blocks[block_key]
+			match_gists[key] = blocks[block_key]
 	
 	errors = []
-	for i in result:
+	for i in body_gist_ref:
 		key = "%s/%s" % (rpath, i)
-		if key in gists:
-			s = re_md_gist.search(body).span()[0]
+		if key in match_gists:
+			match_results = re_md_gist.search(body)
+			if match_results is None:
+				continue
+			s = match_results.span()[0]
 			s = body[body[s-50: s].rfind("\n")+s-50+1: s]
-			content = (("\n%s" % s).join(gists[key])).strip()
+			content = (("\n%s" % s).join(match_gists[key])).strip()
 			content = content.replace("\\", "\\\\")
-			
+
 			body = re.sub(r"@gist\s*\(%s\)" % i, content, body)
 		else:
 			errors.append(i)
@@ -129,9 +133,6 @@ if __name__ == "__main__":
 	if len(errors) > 0:
 		sys.stderr.write("error: No Such File or Author\n")
 		for i, error in enumerate(errors):
-			sys.stderr.write("%s: %s\n" % (i+1, error))
+			sys.stderr.write("%s: '%s'\n" % (i+1, error))
 		exit(2)
 	print body
-	
-
-
