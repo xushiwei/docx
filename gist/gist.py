@@ -131,7 +131,7 @@ if __name__ == "__main__":
 			errors.append(i)
 
 	if len(errors) > 0:
-		sys.stderr.write("error: No Such File or Author\n")
+		sys.stderr.write("error: No Such File or Anchor\n")
 		for i, error in enumerate(errors):
 			sys.stderr.write("%s: '%s'\n" % (i+1, error))
 		exit(2)
